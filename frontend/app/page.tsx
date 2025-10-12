@@ -1,3 +1,5 @@
+import LiveActivityFeed from "@/components/live-activity-feed";
+
 export default function Home() {
   return (
     <div className="relative min-h-screen bg-background">
@@ -37,9 +39,7 @@ export default function Home() {
             </section>
 
             <aside className="md:col-span-3">
-              <div className="rounded-lg bg-[color:var(--color-cosmic-card)] p-4 text-foreground/90">
-                {"Right Sidebar"}
-              </div>
+              <LiveActivityFeed />
             </aside>
           </div>
         </main>

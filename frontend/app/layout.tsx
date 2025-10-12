@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
+import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
   title: "DeFi Cosmos",
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.variable} ${GeistMono.variable} antialiased`}>
       <body className="font-sans">
         <Suspense fallback={<div>Loading...</div>}>
+          <Header />
           {children}
         </Suspense>
       </body>

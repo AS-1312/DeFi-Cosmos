@@ -6,9 +6,9 @@ import "./globals.css";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "DeFi Cosmos",
+  description: "A dashboard for DeFi protocols",
+  generator: "Next.js",
 };
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -26,5 +26,5 @@ export default function RootLayout({
         </Suspense>
       </body>
     </html>
-  )
+  );
 }

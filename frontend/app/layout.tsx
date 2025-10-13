@@ -4,7 +4,8 @@ import { GeistMono } from "geist/font/mono";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
-import { Header } from "@/components/header";
+import { Header } from "@/components/Header";
+import BottomTicker from "@/components/BottomTicker"
 
 export const metadata: Metadata = {
   title: "DeFi Cosmos",
@@ -25,6 +26,7 @@ export default function RootLayout({
         <Suspense fallback={<div>Loading...</div>}>
           <Header />
           {children}
+          <BottomTicker />
         </Suspense>
       </body>
     </html>

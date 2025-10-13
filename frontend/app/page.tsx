@@ -1,4 +1,4 @@
-import LiveActivityFeed from "@/components/live-activity-feed";
+import LiveActivityFeed from "@/components/LiveActivityFeed";
 
 export default function Home() {
   return (

@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header"
 import { LiveActivityFeed } from "@/components/LiveActivityFeed"
 import { ProtocolStatsGrid } from "@/components/ProtocolStatsGrid"
+import { WhaleTracker } from "@/components/WhaleTracker"
 
 export default function Page() {
   return (
@@ -18,9 +19,12 @@ export default function Page() {
           <ProtocolStatsGrid />
         </section>
 
-        <div className="grid-12">
-          <div className="col-span-12 lg:col-span-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-7">
             <LiveActivityFeed />
+          </div>
+          <div className="lg:col-span-5">
+            <WhaleTracker />
           </div>
         </div>
       </main>

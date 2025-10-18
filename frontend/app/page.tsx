@@ -4,6 +4,7 @@ import { ProtocolStatsGrid } from "@/components/ProtocolStatsGrid"
 import { WhaleTracker } from "@/components/WhaleTracker"
 import { ProtocolHealthPanel } from "@/components/ProtocolHealthPanel"
 import { PersonalDashboard } from "@/components/PersonalDashboard"
+import { CrossProtocolActivity } from "@/components/CrossProtocolActivity"
 
 export default function Page() {
   return (
@@ -32,6 +33,10 @@ export default function Page() {
 
         <section className="mb-8">
           <ProtocolHealthPanel />
+        </section>
+
+        <section className="mb-8">
+          <CrossProtocolActivity />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

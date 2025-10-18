@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Wallet } from "lucide-react"
+import { Settings, Wallet, Box, Grid3x3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function Header() {
   const [blockNumber, setBlockNumber] = useState(18234567)
   const [gasPrice, setGasPrice] = useState(23)
+  const [viewMode, setViewMode] = useState<"3d" | "2d">("3d")
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,6 +69,16 @@ export function Header() {
               <div className="w-2 h-2 bg-green-500 rounded-full" />
               <span className="text-sm text-white/80">Ethereum</span>
             </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white/60 hover:text-white hover:bg-white/10"
+              onClick={() => setViewMode(viewMode === "3d" ? "2d" : "3d")}
+              title={`Switch to ${viewMode === "3d" ? "2D" : "3D"} view`}
+            >
+              {viewMode === "3d" ? <Box className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
+            </Button>
 
             {/* Connect Wallet Button */}
             <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-full px-6 shadow-lg shadow-purple-500/50 transition-all hover:shadow-purple-500/70">

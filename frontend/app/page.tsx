@@ -6,57 +6,35 @@ import { ProtocolHealthPanel } from "@/components/ProtocolHealthPanel"
 import { PersonalDashboard } from "@/components/PersonalDashboard"
 import { CrossProtocolActivity } from "@/components/CrossProtocolActivity"
 import { TimeScrubber } from "@/components/TimeScrubber"
+import { CosmosVisualization } from "@/components/CosmosVisualization"
 
 export default function Page() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-20">
       <Header />
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        {/* Time Travel section */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-              Time Travel
-            </span>
-          </h2>
-          <TimeScrubber />
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-              Your Dashboard
-            </span>
-          </h2>
-          <PersonalDashboard />
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-              Protocol Observatory
-            </span>
-          </h2>
-          <ProtocolStatsGrid />
-        </section>
-
-        <section className="mb-8">
-          <ProtocolHealthPanel />
-        </section>
-
-        <section className="mb-8">
-          <CrossProtocolActivity />
-        </section>
-
+      {/* Main Content - 3 Column Layout */}
+      <main className="container mx-auto px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7">
+          {/* LEFT SIDEBAR - Activity Feeds */}
+          <aside className="lg:col-span-3 space-y-6">
             <LiveActivityFeed />
-          </div>
-          <div className="lg:col-span-5">
             <WhaleTracker />
-          </div>
+          </aside>
+
+          {/* CENTER PANEL - Main Visualization & Stats */}
+          <section className="lg:col-span-6 space-y-6">
+            <CosmosVisualization />
+            <TimeScrubber />
+            <ProtocolStatsGrid />
+          </section>
+
+          {/* RIGHT SIDEBAR - Personal & Health */}
+          <aside className="lg:col-span-3 space-y-6">
+            <PersonalDashboard />
+            <ProtocolHealthPanel />
+            <CrossProtocolActivity />
+          </aside>
         </div>
       </main>
     </div>

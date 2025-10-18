@@ -1,19 +1,16 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { GeistMono } from "geist/font/mono";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Suspense } from "react";
-import { Header } from "@/components/Header";
-import BottomTicker from "@/components/BottomTicker"
+import type React from "react"
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import "./globals.css"
+
+const _geist = Geist({ subsets: ["latin"] })
+const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DeFi Cosmos",
-  description: "A dashboard for DeFi protocols",
+  title: "DeFi Cosmos - Analytics Dashboard",
+  description: "Explore the DeFi universe with real-time analytics",
   generator: "Next.js",
-};
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+}
 
 export default function RootLayout({
   children,
@@ -21,14 +18,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${GeistMono.variable} antialiased`}>
-      <body className="font-sans">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Header />
-          {children}
-          <BottomTicker />
-        </Suspense>
+    <html lang="en" className="dark">
+      <body className={`font-sans antialiased`}>
+        <div className="cosmic-bg fixed inset-0 -z-10" />
+        <div className="starfield fixed inset-0 -z-10" />
+        <div className="relative min-h-screen">{children}</div>
       </body>
     </html>
-  );
+  )
 }

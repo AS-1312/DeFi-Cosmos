@@ -373,4 +373,22 @@
   .thin-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(139, 92, 246, 0.5);
   }
+
+  /* Added ticker scroll animation for bottom ticker */
+  @keyframes ticker-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-33.333%);
+    }
+  }
+
+  .ticker-scroll {
+    animation: ticker-scroll 60s linear infinite;
+  }
+
+  .ticker-scroll:hover {
+    animation-play-state: paused;
+  }
 }

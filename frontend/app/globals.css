@@ -355,4 +355,22 @@
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(139, 92, 246, 0.7);
   }
+
+  /* Added thin scrollbar utility for activity feed */
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 2px;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+  }
 }

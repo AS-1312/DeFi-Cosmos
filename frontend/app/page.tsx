@@ -1,4 +1,5 @@
-import { Header } from "@/components/header"
+import { Header } from "@/components/Header"
+import { LiveActivityFeed } from "@/components/LiveActivityFeed"
 
 export default function Page() {
   return (
@@ -7,14 +8,9 @@ export default function Page() {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        <div className="flex min-h-[calc(100vh-200px)] items-center justify-center">
-          <div className="glass-card rounded-2xl p-12 text-center">
-            <h1 className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-5xl font-bold text-transparent">
-              Welcome to DeFi Cosmos
-            </h1>
-            <p className="mt-4 text-lg text-gray-400">
-              Your real-time protocol observatory is ready to explore the DeFi universe
-            </p>
+        <div className="grid-12">
+          <div className="col-span-12 lg:col-span-8">
+            <LiveActivityFeed />
           </div>
         </div>
       </main>

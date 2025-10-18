@@ -5,6 +5,7 @@ import { WhaleTracker } from "@/components/WhaleTracker"
 import { ProtocolHealthPanel } from "@/components/ProtocolHealthPanel"
 import { PersonalDashboard } from "@/components/PersonalDashboard"
 import { CrossProtocolActivity } from "@/components/CrossProtocolActivity"
+import { TimeScrubber } from "@/components/TimeScrubber"
 
 export default function Page() {
   return (
@@ -13,6 +14,16 @@ export default function Page() {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
+        {/* Time Travel section */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+              Time Travel
+            </span>
+          </h2>
+          <TimeScrubber />
+        </section>
+
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">

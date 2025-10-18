@@ -19,17 +19,19 @@ const tickerItems = [
 
 export function BottomTicker() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 h-[60px] glass-card border-t border-white/10 overflow-hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-40 h-[50px] md:h-[60px] glass-card border-t border-white/10 overflow-hidden">
       {/* Gradient border top */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500" />
 
-      {/* Scrolling content */}
-      <div className="ticker-scroll flex items-center h-full gap-8 whitespace-nowrap">
+      <div className="ticker-scroll flex items-center h-full gap-4 md:gap-8 whitespace-nowrap">
         {/* Duplicate items for seamless loop */}
         {[...tickerItems, ...tickerItems, ...tickerItems].map((item, index) => (
-          <div key={index} className="flex items-center gap-3 px-6 text-sm group hover:scale-105 transition-transform">
+          <div
+            key={index}
+            className="flex items-center gap-2 md:gap-3 px-3 md:px-6 text-xs md:text-sm group hover:scale-105 transition-transform"
+          >
             {/* Icon */}
-            <span className="text-lg">{item.icon}</span>
+            <span className="text-base md:text-lg">{item.icon}</span>
 
             {/* Label */}
             <span className="text-gray-400">{item.label}:</span>
@@ -45,23 +47,23 @@ export function BottomTicker() {
 
             {/* Trend indicator */}
             {item.trend === "up" && (
-              <span className="flex items-center gap-1 text-green-400 text-xs">
+              <span className="flex items-center gap-1 text-green-400 text-[10px] md:text-xs">
                 <TrendingUp className="w-3 h-3" />
                 {item.change}
               </span>
             )}
             {item.trend === "down" && (
-              <span className="flex items-center gap-1 text-red-400 text-xs">
+              <span className="flex items-center gap-1 text-red-400 text-[10px] md:text-xs">
                 <TrendingDown className="w-3 h-3" />
                 {item.change}
               </span>
             )}
 
             {/* Icon component */}
-            {item.iconComponent && <item.iconComponent className="w-4 h-4 text-orange-400" />}
+            {item.iconComponent && <item.iconComponent className="w-3 h-3 md:w-4 md:h-4 text-orange-400" />}
 
             {/* Separator */}
-            <span className="text-gray-600 text-xl">•</span>
+            <span className="text-gray-600 text-lg md:text-xl">•</span>
           </div>
         ))}
       </div>

@@ -2,6 +2,7 @@ import { Header } from "@/components/Header"
 import { LiveActivityFeed } from "@/components/LiveActivityFeed"
 import { ProtocolStatsGrid } from "@/components/ProtocolStatsGrid"
 import { WhaleTracker } from "@/components/WhaleTracker"
+import { ProtocolHealthPanel } from "@/components/ProtocolHealthPanel"
 
 export default function Page() {
   return (
@@ -17,6 +18,10 @@ export default function Page() {
             </span>
           </h2>
           <ProtocolStatsGrid />
+        </section>
+
+        <section className="mb-8">
+          <ProtocolHealthPanel />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

@@ -7,10 +7,12 @@ import { PersonalDashboard } from "@/components/PersonalDashboard"
 import { CrossProtocolActivity } from "@/components/CrossProtocolActivity"
 import { TimeScrubber } from "@/components/TimeScrubber"
 import { CosmosVisualization } from "@/components/CosmosVisualization"
+import { WelcomeScreen } from "@/components/WelcomeScreen"
 
 export default function Page() {
   return (
     <div className="min-h-screen pb-20">
+      <WelcomeScreen />
       <Header />
 
       {/* Main Content - 3 Column Layout */}

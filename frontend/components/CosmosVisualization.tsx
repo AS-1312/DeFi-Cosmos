@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Orbit, ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -80,6 +80,21 @@ export function CosmosVisualization() {
   const [showWhales, setShowWhales] = useState(true)
   const [hoveredProtocol, setHoveredProtocol] = useState<string | null>(null)
   const [selectedProtocol, setSelectedProtocol] = useState<string | null>(null)
+  const [stars, setStars] = useState<Array<{ left: string; top: string; opacity: number; animationDelay: string; animationDuration: string }>>([])
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Generate stars only on client side to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true)
+    const generatedStars = [...Array(50)].map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      opacity: Math.random() * 0.5 + 0.2,
+      animationDelay: `${Math.random() * 3}s`,
+      animationDuration: `${Math.random() * 2 + 2}s`,
+    }))
+    setStars(generatedStars)
+  }, [])
 
   const centerX = 300
   const centerY = 300
@@ -124,16 +139,16 @@ export function CosmosVisualization() {
       <div className="flex-1 relative rounded-lg bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-black/60 border border-white/10 overflow-hidden">
         {/* Starfield background */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {stars.map((star, i) => (
             <div
               key={i}
               className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.5 + 0.2,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${Math.random() * 2 + 2}s`,
+                left: star.left,
+                top: star.top,
+                opacity: star.opacity,
+                animationDelay: star.animationDelay,
+                animationDuration: star.animationDuration,
               }}
             />
           ))}
@@ -257,7 +272,7 @@ export function CosmosVisualization() {
           })}
 
           {/* Whale comets */}
-          {showWhales &&
+          {isMounted && showWhales &&
             whales.map((whale) => {
               const fromProtocol = protocols.find((p) => p.id === whale.from)
               const toProtocol = protocols.find((p) => p.id === whale.to)

@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+import { Header } from "@/components/Header"
+import { SideNav } from "@/components/SideNav"
 import { BottomTicker } from "@/components/BottomTicker"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -27,10 +29,16 @@ export default function RootLayout({
         {/* Animated Starfield */}
         <div className="starfield fixed inset-0 -z-10" />
 
-        {/* Main Content */}
-        <div className="relative min-h-screen pb-[60px]">{children}</div>
+        {/* Header - Fixed at top */}
+        <Header />
 
-        {/* Bottom Ticker Component */}
+        {/* Side Navigation - Fixed at left */}
+        <SideNav />
+
+        {/* Main Content Area - Offset for header, sidebar, and ticker */}
+        <main className="ml-[240px] mt-[64px] mb-[60px] p-8 min-h-[calc(100vh-124px)]">{children}</main>
+
+        {/* Bottom Ticker - Fixed at bottom */}
         <BottomTicker />
       </body>
     </html>

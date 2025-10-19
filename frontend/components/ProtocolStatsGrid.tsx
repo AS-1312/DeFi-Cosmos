@@ -13,9 +13,9 @@ interface Protocol {
   change24h: number
   volume24h: string
   transactions24h: string
-  apy: string
+  utilization?: string
   tps: number
-  health: "green" | "yellow" | "red"
+  health: number
   sparklineData: { value: number }[]
 }
 
@@ -24,13 +24,12 @@ const protocols: Protocol[] = [
     id: "uniswap",
     name: "Uniswap",
     color: "#ff007a",
-    tvl: "$24.5B",
+    tvl: "24.5K ETH + 15.2M USDC + 8.1M DAI",
     change24h: 5.2,
-    volume24h: "$1.8B",
+    volume24h: "8.2K ETH",
     transactions24h: "15.2K",
-    apy: "12.5%",
     tps: 45,
-    health: "green",
+    health: 92,
     sparklineData: [
       { value: 20 },
       { value: 25 },
@@ -46,13 +45,13 @@ const protocols: Protocol[] = [
     id: "aave",
     name: "Aave",
     color: "#8b5cf6",
-    tvl: "$18.3B",
+    tvl: "18.3K ETH + 42.5M USDC",
     change24h: -2.1,
-    volume24h: "$890M",
+    volume24h: "5.6K ETH",
     transactions24h: "8.4K",
-    apy: "8.2%",
+    utilization: "72%",
     tps: 32,
-    health: "green",
+    health: 88,
     sparklineData: [
       { value: 30 },
       { value: 28 },
@@ -68,13 +67,12 @@ const protocols: Protocol[] = [
     id: "curve",
     name: "Curve",
     color: "#3b82f6",
-    tvl: "$12.7B",
+    tvl: "8.1M DAI + 5.2M USDC + 3.4M USDT",
     change24h: 3.8,
-    volume24h: "$650M",
+    volume24h: "3.8M USDC",
     transactions24h: "6.1K",
-    apy: "15.3%",
     tps: 28,
-    health: "yellow",
+    health: 78,
     sparklineData: [
       { value: 18 },
       { value: 20 },
@@ -90,13 +88,12 @@ const protocols: Protocol[] = [
     id: "lido",
     name: "Lido",
     color: "#f97316",
-    tvl: "$32.1B",
+    tvl: "142K ETH staked",
     change24h: 1.5,
-    volume24h: "$420M",
+    volume24h: "2.4K ETH",
     transactions24h: "4.8K",
-    apy: "4.5%",
     tps: 18,
-    health: "green",
+    health: 95,
     sparklineData: [
       { value: 25 },
       { value: 26 },
@@ -112,13 +109,13 @@ const protocols: Protocol[] = [
     id: "maker",
     name: "Maker",
     color: "#1aab9b",
-    tvl: "$8.9B",
+    tvl: "4.8M DAI",
     change24h: -4.3,
-    volume24h: "$280M",
+    volume24h: "1.2M DAI",
     transactions24h: "3.2K",
-    apy: "6.8%",
+    utilization: "89%",
     tps: 12,
-    health: "yellow",
+    health: 85,
     sparklineData: [
       { value: 22 },
       { value: 24 },
@@ -132,10 +129,10 @@ const protocols: Protocol[] = [
   },
 ]
 
-const healthColors = {
-  green: "#10b981",
-  yellow: "#eab308",
-  red: "#ef4444",
+const getHealthColor = (health: number) => {
+  if (health >= 80) return "#10b981"
+  if (health >= 50) return "#eab308"
+  return "#ef4444"
 }
 
 export function ProtocolStatsGrid() {
@@ -171,10 +168,10 @@ export function ProtocolStatsGrid() {
                 <div className="flex items-center gap-2 mt-1">
                   <div
                     className="w-2 h-2 rounded-full animate-pulse"
-                    style={{ backgroundColor: healthColors[protocol.health] }}
+                    style={{ backgroundColor: getHealthColor(protocol.health) }}
                   />
                   <span className="text-xs text-white/60">
-                    {protocol.health === "green" ? "Healthy" : protocol.health === "yellow" ? "Caution" : "Warning"}
+                    Health: {protocol.health}/100
                   </span>
                 </div>
               </div>
@@ -185,7 +182,7 @@ export function ProtocolStatsGrid() {
           <div className="space-y-4 mb-6">
             {/* TVL */}
             <div>
-              <div className="text-3xl font-bold text-white mb-1">{protocol.tvl}</div>
+              <div className="text-xl font-bold text-white mb-1 leading-tight">{protocol.tvl}</div>
               <div className="text-xs text-white/60">Total Value Locked</div>
             </div>
 
@@ -212,10 +209,12 @@ export function ProtocolStatsGrid() {
                 <div className="text-sm text-white/60">Transactions</div>
                 <div className="text-base font-semibold text-white">{protocol.transactions24h}</div>
               </div>
-              <div>
-                <div className="text-sm text-white/60">APY</div>
-                <div className="text-base font-semibold text-green-400">{protocol.apy}</div>
-              </div>
+              {protocol.utilization && (
+                <div>
+                  <div className="text-sm text-white/60">Utilization</div>
+                  <div className="text-base font-semibold text-blue-400">{protocol.utilization}</div>
+                </div>
+              )}
               <div>
                 <div className="text-sm text-white/60">TPS</div>
                 <div className="text-base font-semibold text-white flex items-center gap-1">

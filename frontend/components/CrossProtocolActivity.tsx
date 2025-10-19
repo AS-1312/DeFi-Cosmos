@@ -15,16 +15,16 @@ interface ProtocolFlow {
   toColor: string
   flowType: FlowType
   walletCount: number
-  totalFlow: number
+  totalFlow: string
   avgTime: string
   trend: number
   recentFlows: Array<{
     wallet: string
-    amount: number
+    amount: string
     time: string
   }>
   chartData: Array<{ time: string; value: number }>
-  topWallets: Array<{ address: string; amount: number }>
+  topWallets: Array<{ address: string; amount: string }>
 }
 
 const flowTypeConfig = {
@@ -42,21 +42,21 @@ const mockFlows: ProtocolFlow[] = [
     toColor: "#3b82f6",
     flowType: "yield",
     walletCount: 156,
-    totalFlow: 45200000,
+    totalFlow: "1,850 ETH + 8.2M USDC",
     avgTime: "2m 15s",
     trend: 12.5,
     recentFlows: [
-      { wallet: "0x742d...3f8a", amount: 125000, time: "2m ago" },
-      { wallet: "0x8f3c...9d2b", amount: 89000, time: "5m ago" },
-      { wallet: "0x1a4e...7c6d", amount: 234000, time: "8m ago" },
+      { wallet: "0x742d...3f8a", amount: "45 ETH", time: "2m ago" },
+      { wallet: "0x8f3c...9d2b", amount: "32 ETH", time: "5m ago" },
+      { wallet: "0x1a4e...7c6d", amount: "85,000 USDC", time: "8m ago" },
     ],
     chartData: Array.from({ length: 24 }, (_, i) => ({
       time: `${i}h`,
       value: Math.random() * 5000000 + 1000000,
     })),
     topWallets: [
-      { address: "0x742d...3f8a", amount: 2500000 },
-      { address: "0x8f3c...9d2b", amount: 1800000 },
+      { address: "0x742d...3f8a", amount: "850 ETH" },
+      { address: "0x8f3c...9d2b", amount: "620 ETH" },
     ],
   },
   {
@@ -67,20 +67,20 @@ const mockFlows: ProtocolFlow[] = [
     toColor: "#8b5cf6",
     flowType: "arbitrage",
     walletCount: 89,
-    totalFlow: 32100000,
+    totalFlow: "1,120 ETH",
     avgTime: "1m 45s",
     trend: -5.2,
     recentFlows: [
-      { wallet: "0x5b2a...4e1c", amount: 156000, time: "1m ago" },
-      { wallet: "0x9c7d...2f3a", amount: 98000, time: "3m ago" },
+      { wallet: "0x5b2a...4e1c", amount: "52 ETH", time: "1m ago" },
+      { wallet: "0x9c7d...2f3a", amount: "38 ETH", time: "3m ago" },
     ],
     chartData: Array.from({ length: 24 }, (_, i) => ({
       time: `${i}h`,
       value: Math.random() * 4000000 + 800000,
     })),
     topWallets: [
-      { address: "0x5b2a...4e1c", amount: 3200000 },
-      { address: "0x9c7d...2f3a", amount: 2100000 },
+      { address: "0x5b2a...4e1c", amount: "320 ETH" },
+      { address: "0x9c7d...2f3a", amount: "280 ETH" },
     ],
   },
   {
@@ -91,20 +91,20 @@ const mockFlows: ProtocolFlow[] = [
     toColor: "#3b82f6",
     flowType: "rebalancing",
     walletCount: 203,
-    totalFlow: 67800000,
+    totalFlow: "2,480 ETH + 12.5M DAI",
     avgTime: "3m 30s",
     trend: 8.7,
     recentFlows: [
-      { wallet: "0x3d8f...6a2b", amount: 345000, time: "4m ago" },
-      { wallet: "0x7e1c...9f4d", amount: 189000, time: "6m ago" },
+      { wallet: "0x3d8f...6a2b", amount: "125 ETH", time: "4m ago" },
+      { wallet: "0x7e1c...9f4d", amount: "2.8M DAI", time: "6m ago" },
     ],
     chartData: Array.from({ length: 24 }, (_, i) => ({
       time: `${i}h`,
       value: Math.random() * 6000000 + 2000000,
     })),
     topWallets: [
-      { address: "0x3d8f...6a2b", amount: 4500000 },
-      { address: "0x7e1c...9f4d", amount: 3800000 },
+      { address: "0x3d8f...6a2b", amount: "1,250 ETH" },
+      { address: "0x7e1c...9f4d", amount: "980 ETH" },
     ],
   },
   {
@@ -115,20 +115,20 @@ const mockFlows: ProtocolFlow[] = [
     toColor: "#f97316",
     flowType: "yield",
     walletCount: 134,
-    totalFlow: 28900000,
+    totalFlow: "965 ETH + 5.4M USDC",
     avgTime: "2m 50s",
     trend: 15.3,
     recentFlows: [
-      { wallet: "0x6c4a...8d3e", amount: 267000, time: "3m ago" },
-      { wallet: "0x2f9b...5c1a", amount: 145000, time: "7m ago" },
+      { wallet: "0x6c4a...8d3e", amount: "95 ETH", time: "3m ago" },
+      { wallet: "0x2f9b...5c1a", amount: "1.2M USDC", time: "7m ago" },
     ],
     chartData: Array.from({ length: 24 }, (_, i) => ({
       time: `${i}h`,
       value: Math.random() * 3500000 + 900000,
     })),
     topWallets: [
-      { address: "0x6c4a...8d3e", amount: 2900000 },
-      { address: "0x2f9b...5c1a", amount: 1700000 },
+      { address: "0x6c4a...8d3e", amount: "720 ETH" },
+      { address: "0x2f9b...5c1a", amount: "540 ETH" },
     ],
   },
 ]
@@ -142,21 +142,17 @@ export function CrossProtocolActivity() {
   const filteredFlows = mockFlows
     .filter((flow) => filterType === "all" || flow.flowType === filterType)
     .sort((a, b) => {
-      if (sortBy === "volume") return b.totalFlow - a.totalFlow
+      if (sortBy === "volume") {
+        // Extract first numeric value from totalFlow string for sorting
+        const getNumericValue = (flow: string) => parseFloat(flow.replace(/[^0-9.]/g, ''))
+        return getNumericValue(b.totalFlow) - getNumericValue(a.totalFlow)
+      }
       if (sortBy === "wallets") return b.walletCount - a.walletCount
       return 0
     })
 
   const totalWallets = mockFlows.reduce((sum, flow) => sum + flow.walletCount, 0)
-  const totalCapital = mockFlows.reduce((sum, flow) => sum + flow.totalFlow, 0)
-  const mostActiveFlow = mockFlows.reduce((max, flow) => (flow.totalFlow > max.totalFlow ? flow : max))
-  const avgFlowSize = totalCapital / totalWallets
-
-  const formatCurrency = (value: number) => {
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
-    if (value >= 1000) return `$${(value / 1000).toFixed(1)}K`
-    return `$${value.toFixed(0)}`
-  }
+  const mostActiveFlow = mockFlows.reduce((max, flow) => (flow.walletCount > max.walletCount ? flow : max))
 
   return (
     <div className="glass-card p-6">
@@ -250,8 +246,6 @@ export function CrossProtocolActivity() {
         {filteredFlows.map((flow) => {
           const isExpanded = expandedFlow === flow.id
           const config = flowTypeConfig[flow.flowType]
-          const maxFlow = Math.max(...filteredFlows.map((f) => f.totalFlow))
-          const widthPercent = (flow.totalFlow / maxFlow) * 100
 
           return (
             <div
@@ -286,7 +280,7 @@ export function CrossProtocolActivity() {
                 </div>
                 <div>
                   <div className="text-gray-400 text-xs">Total Flow</div>
-                  <div className="text-white font-semibold">{formatCurrency(flow.totalFlow)}</div>
+                  <div className="text-white font-semibold">{flow.totalFlow}</div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-xs">Avg Time</div>
@@ -308,7 +302,7 @@ export function CrossProtocolActivity() {
                 <div
                   className="absolute inset-y-0 left-0 rounded-full animate-pulse"
                   style={{
-                    width: `${widthPercent}%`,
+                    width: `${50 + (flow.walletCount / 3)}%`,
                     background: `linear-gradient(to right, ${flow.fromColor}, ${flow.toColor})`,
                     boxShadow: `0 0 20px ${flow.toColor}40`,
                   }}
@@ -329,7 +323,7 @@ export function CrossProtocolActivity() {
                             <ExternalLink className="w-3 h-3 text-gray-500" />
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-white font-semibold">{formatCurrency(recentFlow.amount)}</span>
+                            <span className="text-white font-semibold">{recentFlow.amount}</span>
                             <span className="text-gray-500 text-xs">{recentFlow.time}</span>
                           </div>
                         </div>
@@ -362,7 +356,7 @@ export function CrossProtocolActivity() {
                             borderRadius: "8px",
                             padding: "8px",
                           }}
-                          formatter={(value: number) => [formatCurrency(value), "Flow"]}
+                          formatter={(value: number) => [(value / 1000000).toFixed(2) + "M", "Flow"]}
                         />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -378,7 +372,7 @@ export function CrossProtocolActivity() {
                             <span className="text-gray-400">{wallet.address}</span>
                             <ExternalLink className="w-3 h-3 text-gray-500" />
                           </div>
-                          <span className="text-white font-semibold">{formatCurrency(wallet.amount)}</span>
+                          <span className="text-white font-semibold">{wallet.amount}</span>
                         </div>
                       ))}
                     </div>
@@ -391,24 +385,20 @@ export function CrossProtocolActivity() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/10">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-white/10">
         <div>
           <div className="text-xs text-gray-400 mb-1">Total Unique Wallets</div>
           <div className="text-lg font-bold text-white">{totalWallets}</div>
         </div>
         <div>
-          <div className="text-xs text-gray-400 mb-1">Total Capital Moved</div>
-          <div className="text-lg font-bold text-white">{formatCurrency(totalCapital)}</div>
-        </div>
-        <div>
           <div className="text-xs text-gray-400 mb-1">Most Active Pair</div>
-          <div className="text-lg font-bold text-white text-sm">
+          <div className="text-sm font-bold text-white">
             {mostActiveFlow.from} → {mostActiveFlow.to}
           </div>
         </div>
         <div>
-          <div className="text-xs text-gray-400 mb-1">Avg Flow Size</div>
-          <div className="text-lg font-bold text-white">{formatCurrency(avgFlowSize)}</div>
+          <div className="text-xs text-gray-400 mb-1">Avg Flow Time</div>
+          <div className="text-lg font-bold text-white">{mostActiveFlow.avgTime}</div>
         </div>
       </div>
     </div>

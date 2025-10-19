@@ -12,7 +12,7 @@ interface Transaction {
   protocol: Protocol
   type: TransactionType
   from: string
-  amountUSD: number
+  amount: string
   timestamp: number
   isWhale: boolean
   txHash: string
@@ -39,15 +39,23 @@ const generateMockTransaction = (): Transaction => {
   const types: TransactionType[] = ["swap", "deposit", "withdraw", "borrow"]
   const protocol = protocols[Math.floor(Math.random() * protocols.length)]
   const type = types[Math.floor(Math.random() * types.length)]
-  const amountUSD = Math.random() * 1000000
-  const isWhale = amountUSD > 500000
+  
+  // Generate random amounts in native tokens
+  const tokenTypes = ["ETH", "USDC", "DAI", "USDT"]
+  const token = tokenTypes[Math.floor(Math.random() * tokenTypes.length)]
+  const baseAmount = Math.random() * 500
+  const amount = token === "ETH" 
+    ? `${baseAmount.toFixed(2)} ETH`
+    : `${(baseAmount * 2000).toFixed(0)} ${token}`
+  
+  const isWhale = token === "ETH" ? baseAmount > 100 : baseAmount * 2000 > 200000
 
   return {
     id: Math.random().toString(36).substring(7),
     protocol,
     type,
     from: `0x${Math.random().toString(16).substring(2, 6)}...${Math.random().toString(16).substring(2, 6)}`,
-    amountUSD,
+    amount,
     timestamp: Date.now(),
     isWhale,
     txHash: `0x${Math.random().toString(16).substring(2, 66)}`,
@@ -85,15 +93,6 @@ export function LiveActivityFeed() {
     if (minutes < 60) return `${minutes}m ago`
     const hours = Math.floor(minutes / 60)
     return `${hours}h ago`
-  }
-
-  const formatUSD = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
   }
 
   return (
@@ -190,7 +189,7 @@ export function LiveActivityFeed() {
                 {/* Right: Amount & Link */}
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <div className="text-lg font-bold text-white">{formatUSD(tx.amountUSD)}</div>
+                    <div className="text-base font-bold text-white">{tx.amount}</div>
                   </div>
                   <a
                     href={`https://etherscan.io/tx/${tx.txHash}`}

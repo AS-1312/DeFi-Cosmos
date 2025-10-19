@@ -10,50 +10,45 @@ const protocols = [
     id: "uniswap",
     name: "Uniswap",
     color: "#ff007a",
-    tvl: 4.2,
+    tvl: "24.5K ETH",
     health: 92,
     transactions: "2.4M",
-    apy: "12.5%",
     angle: -30, // degrees from top
   },
   {
     id: "aave",
     name: "Aave",
     color: "#8b5cf6",
-    tvl: 5.8,
+    tvl: "18.3K ETH",
     health: 88,
     transactions: "1.8M",
-    apy: "8.3%",
     angle: 30,
   },
   {
     id: "curve",
     name: "Curve",
     color: "#3b82f6",
-    tvl: 3.6,
-    health: 95,
+    tvl: "8.1M DAI",
+    health: 78,
     transactions: "3.1M",
-    apy: "15.2%",
     angle: 90,
   },
   {
     id: "lido",
     name: "Lido",
     color: "#f97316",
-    tvl: 6.2,
-    health: 78,
+    tvl: "142K ETH",
+    health: 95,
     transactions: "892K",
-    apy: "4.8%",
     angle: 150,
   },
   {
     id: "maker",
     name: "Maker",
     color: "#1aab9b",
-    tvl: 4.8,
+    tvl: "4.8M DAI",
     health: 85,
     transactions: "1.2M",
-    apy: "6.5%",
     angle: 210,
   },
 ]
@@ -69,9 +64,9 @@ const flows = [
 
 // Whale comets
 const whales = [
-  { id: 1, from: "uniswap", to: "aave", progress: 0.3, amount: "$2.4M", address: "0x742d...35Bd" },
-  { id: 2, from: "curve", to: "lido", progress: 0.6, amount: "$1.8M", address: "0x8f3a...92Cd" },
-  { id: 3, from: "maker", to: "uniswap", progress: 0.8, amount: "$3.1M", address: "0x1a2b...47Ef" },
+  { id: 1, from: "uniswap", to: "aave", progress: 0.3, amount: "85 ETH", address: "0x742d...35Bd" },
+  { id: 2, from: "curve", to: "lido", progress: 0.6, amount: "420K USDC", address: "0x8f3a...92Cd" },
+  { id: 3, from: "maker", to: "uniswap", progress: 0.8, amount: "120 ETH", address: "0x1a2b...47Ef" },
 ]
 
 export function CosmosVisualization() {
@@ -228,7 +223,9 @@ export function CosmosVisualization() {
           {/* Protocol planets */}
           {protocols.map((protocol) => {
             const pos = getProtocolPosition(protocol.angle)
-            const size = 15 + protocol.tvl * 3
+            // Calculate size based on TVL string - extract numeric part
+            const tvlNum = parseFloat(protocol.tvl.replace(/[^0-9.]/g, ''))
+            const size = 15 + (tvlNum / 10)
             const isHovered = hoveredProtocol === protocol.id
             const isSelected = selectedProtocol === protocol.id
 
@@ -316,7 +313,7 @@ export function CosmosVisualization() {
         {hoveredProtocol && (
           <div className="absolute top-4 left-4 glass-card p-3 text-sm space-y-1 animate-in fade-in slide-in-from-left-2">
             <div className="font-bold text-white">{protocols.find((p) => p.id === hoveredProtocol)?.name}</div>
-            <div className="text-white/70">TVL: ${protocols.find((p) => p.id === hoveredProtocol)?.tvl}B</div>
+            <div className="text-white/70">TVL: {protocols.find((p) => p.id === hoveredProtocol)?.tvl}</div>
             <div className="text-white/70">
               Health:{" "}
               <span
@@ -330,7 +327,6 @@ export function CosmosVisualization() {
             <div className="text-white/70">
               Transactions: {protocols.find((p) => p.id === hoveredProtocol)?.transactions}
             </div>
-            <div className="text-white/70">APY: {protocols.find((p) => p.id === hoveredProtocol)?.apy}</div>
           </div>
         )}
 

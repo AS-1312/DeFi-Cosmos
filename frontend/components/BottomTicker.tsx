@@ -1,20 +1,18 @@
 "use client"
 
-import { TrendingUp, TrendingDown, Flame } from "lucide-react"
-
 const tickerItems = [
-  { icon: "💎", label: "ETH", value: "$3,245.67", trend: "up", change: "+2.4%" },
-  { icon: "⛽", label: "Gas", value: "35 Gwei", iconComponent: Flame },
-  { icon: "💰", label: "TVL", value: "$68.5B" },
-  { icon: "📊", label: "Vol", value: "$12.3B" },
-  { icon: "👥", label: "Active", value: "45.2K" },
-  { icon: "🐋", label: "Whales", value: "3 new" },
-  { icon: "🦄", label: "Uniswap", value: "$24.5B TVL" },
-  { icon: "⚠️", label: "Aave Health", value: "65/100", alert: true },
-  { icon: "🌊", label: "Curve", value: "$8.2B TVL" },
-  { icon: "🔷", label: "Lido", value: "$22.1B TVL" },
-  { icon: "🏛️", label: "Maker", value: "$5.8B TVL" },
+  { icon: "💰", label: "TVL", value: "24.5K ETH" },
+  { icon: "📊", label: "Vol", value: "8.2K ETH" },
+  { icon: "👥", label: "Active Wallets", value: "45.2K" },
+  { icon: "🐋", label: "Whale Moves", value: "3 new" },
+  { icon: "🦄", label: "Uniswap", value: "24.5K ETH + 15.2M USDC" },
+  { icon: "⚠️", label: "Aave Health", value: "88/100", alert: false },
+  { icon: "🌊", label: "Curve", value: "8.1M DAI + 5.2M USDC" },
+  { icon: "🔷", label: "Lido", value: "142K ETH staked" },
+  { icon: "🏛️", label: "Maker", value: "4.8M DAI" },
   { icon: "⚡", label: "Transactions", value: "1.2M/day" },
+  { icon: "🔥", label: "TPS", value: "45.2" },
+  { icon: "💧", label: "Liquidations", value: "12 (24h)" },
 ]
 
 export function BottomTicker() {
@@ -44,23 +42,6 @@ export function BottomTicker() {
             >
               {item.value}
             </span>
-
-            {/* Trend indicator */}
-            {item.trend === "up" && (
-              <span className="flex items-center gap-1 text-green-400 text-[10px] md:text-xs">
-                <TrendingUp className="w-3 h-3" />
-                {item.change}
-              </span>
-            )}
-            {item.trend === "down" && (
-              <span className="flex items-center gap-1 text-red-400 text-[10px] md:text-xs">
-                <TrendingDown className="w-3 h-3" />
-                {item.change}
-              </span>
-            )}
-
-            {/* Icon component */}
-            {item.iconComponent && <item.iconComponent className="w-3 h-3 md:w-4 md:h-4 text-orange-400" />}
 
             {/* Separator */}
             <span className="text-gray-600 text-lg md:text-xl">•</span>

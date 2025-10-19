@@ -7,13 +7,11 @@ import { MobileNav } from "@/components/MobileNav"
 
 export function Header() {
   const [blockNumber, setBlockNumber] = useState(18234567)
-  const [gasPrice, setGasPrice] = useState(23)
   const [viewMode, setViewMode] = useState<"3d" | "2d">("3d")
 
   useEffect(() => {
     const interval = setInterval(() => {
       setBlockNumber((prev) => prev + 1)
-      setGasPrice((prev) => Math.max(15, Math.min(50, prev + (Math.random() - 0.5) * 3)))
     }, 12000)
 
     return () => clearInterval(interval)
@@ -42,15 +40,6 @@ export function Header() {
               <div>
                 <div className="text-xs text-white/60">Block</div>
                 <div className="text-sm font-bold text-white">{blockNumber.toLocaleString()}</div>
-              </div>
-            </div>
-
-            {/* Gas Price */}
-            <div className="glass-card px-4 py-2 flex items-center gap-2">
-              <span className="text-lg">🔥</span>
-              <div>
-                <div className="text-xs text-white/60">Gas</div>
-                <div className="text-sm font-bold text-white">{gasPrice.toFixed(1)} Gwei</div>
               </div>
             </div>
 

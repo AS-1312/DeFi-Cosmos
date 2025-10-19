@@ -21,9 +21,8 @@ type PatternType = "accumulator" | "farmer" | "arbitrageur" | "panic"
 interface WhaleData {
   id: string
   address: string
-  ensName?: string
   avatar: string
-  totalVolume: number
+  totalVolume: string
   transactionCount: number
   protocols: string[]
   crossProtocolMoves: number
@@ -34,7 +33,7 @@ interface WhaleData {
   recentTransactions: {
     type: string
     protocol: string
-    amount: number
+    amount: string
     time: string
     hash: string
   }[]
@@ -86,9 +85,8 @@ const mockWhales: WhaleData[] = [
   {
     id: "1",
     address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-    ensName: "vitalik.eth",
     avatar: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    totalVolume: 12500000,
+    totalVolume: "5,200 ETH",
     transactionCount: 234,
     protocols: ["Uniswap", "Aave", "Curve"],
     crossProtocolMoves: 45,
@@ -97,11 +95,11 @@ const mockWhales: WhaleData[] = [
     confidence: 94,
     isActive: true,
     recentTransactions: [
-      { type: "Deposit", protocol: "Aave", amount: 500000, time: "2m ago", hash: "0xabc123" },
-      { type: "Swap", protocol: "Uniswap", amount: 250000, time: "15m ago", hash: "0xdef456" },
-      { type: "Deposit", protocol: "Curve", amount: 750000, time: "1h ago", hash: "0xghi789" },
-      { type: "Swap", protocol: "Uniswap", amount: 300000, time: "2h ago", hash: "0xjkl012" },
-      { type: "Deposit", protocol: "Aave", amount: 450000, time: "3h ago", hash: "0xmno345" },
+      { type: "Deposit", protocol: "Aave", amount: "150 ETH", time: "2m ago", hash: "0xabc123" },
+      { type: "Swap", protocol: "Uniswap", amount: "85 ETH", time: "15m ago", hash: "0xdef456" },
+      { type: "Deposit", protocol: "Curve", amount: "250,000 USDC", time: "1h ago", hash: "0xghi789" },
+      { type: "Swap", protocol: "Uniswap", amount: "120 ETH", time: "2h ago", hash: "0xjkl012" },
+      { type: "Deposit", protocol: "Aave", amount: "180,000 DAI", time: "3h ago", hash: "0xmno345" },
     ],
     patternExplanation:
       "Consistently accumulating positions across multiple protocols with increasing volume. Shows strong conviction in current market conditions.",
@@ -112,7 +110,7 @@ const mockWhales: WhaleData[] = [
     id: "2",
     address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
     avatar: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-    totalVolume: 8900000,
+    totalVolume: "3,800 ETH",
     transactionCount: 567,
     protocols: ["Curve", "Lido", "Aave"],
     crossProtocolMoves: 89,
@@ -121,11 +119,11 @@ const mockWhales: WhaleData[] = [
     confidence: 91,
     isActive: true,
     recentTransactions: [
-      { type: "Withdraw", protocol: "Curve", amount: 200000, time: "5m ago", hash: "0xpqr678" },
-      { type: "Deposit", protocol: "Lido", amount: 350000, time: "20m ago", hash: "0xstu901" },
-      { type: "Withdraw", protocol: "Aave", amount: 180000, time: "45m ago", hash: "0xvwx234" },
-      { type: "Deposit", protocol: "Curve", amount: 400000, time: "1h ago", hash: "0xyz567" },
-      { type: "Swap", protocol: "Uniswap", amount: 150000, time: "2h ago", hash: "0xabc890" },
+      { type: "Withdraw", protocol: "Curve", amount: "80,000 DAI", time: "5m ago", hash: "0xpqr678" },
+      { type: "Deposit", protocol: "Lido", amount: "120 ETH", time: "20m ago", hash: "0xstu901" },
+      { type: "Withdraw", protocol: "Aave", amount: "65 ETH", time: "45m ago", hash: "0xvwx234" },
+      { type: "Deposit", protocol: "Curve", amount: "150,000 USDC", time: "1h ago", hash: "0xyz567" },
+      { type: "Swap", protocol: "Uniswap", amount: "55 ETH", time: "2h ago", hash: "0xabc890" },
     ],
     patternExplanation:
       "Actively rotating capital between yield farming opportunities. Frequent deposits and withdrawals indicate yield optimization strategy.",
@@ -135,9 +133,8 @@ const mockWhales: WhaleData[] = [
   {
     id: "3",
     address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-    ensName: "arbitrage.eth",
     avatar: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    totalVolume: 15200000,
+    totalVolume: "8,500 ETH",
     transactionCount: 1234,
     protocols: ["Uniswap", "Curve", "Aave", "Maker"],
     crossProtocolMoves: 234,
@@ -146,11 +143,11 @@ const mockWhales: WhaleData[] = [
     confidence: 98,
     isActive: true,
     recentTransactions: [
-      { type: "Swap", protocol: "Uniswap", amount: 800000, time: "1m ago", hash: "0xdef123" },
-      { type: "Swap", protocol: "Curve", amount: 750000, time: "3m ago", hash: "0xghi456" },
-      { type: "Swap", protocol: "Uniswap", amount: 900000, time: "8m ago", hash: "0xjkl789" },
-      { type: "Swap", protocol: "Curve", amount: 650000, time: "12m ago", hash: "0xmno012" },
-      { type: "Swap", protocol: "Uniswap", amount: 720000, time: "18m ago", hash: "0xpqr345" },
+      { type: "Swap", protocol: "Uniswap", amount: "280 ETH", time: "1m ago", hash: "0xdef123" },
+      { type: "Swap", protocol: "Curve", amount: "320,000 USDC", time: "3m ago", hash: "0xghi456" },
+      { type: "Swap", protocol: "Uniswap", amount: "310 ETH", time: "8m ago", hash: "0xjkl789" },
+      { type: "Swap", protocol: "Curve", amount: "280,000 DAI", time: "12m ago", hash: "0xmno012" },
+      { type: "Swap", protocol: "Uniswap", amount: "245 ETH", time: "18m ago", hash: "0xpqr345" },
     ],
     patternExplanation:
       "High-frequency trading across multiple DEXs. Exploiting price differences with rapid execution and minimal slippage.",
@@ -161,7 +158,7 @@ const mockWhales: WhaleData[] = [
     id: "4",
     address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     avatar: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-    totalVolume: 6700000,
+    totalVolume: "2,850 ETH",
     transactionCount: 89,
     protocols: ["Aave", "Maker", "Uniswap"],
     crossProtocolMoves: 23,
@@ -170,11 +167,11 @@ const mockWhales: WhaleData[] = [
     confidence: 88,
     isActive: true,
     recentTransactions: [
-      { type: "Withdraw", protocol: "Aave", amount: 1200000, time: "3m ago", hash: "0xstu678" },
-      { type: "Withdraw", protocol: "Maker", amount: 950000, time: "5m ago", hash: "0xvwx901" },
-      { type: "Swap", protocol: "Uniswap", amount: 800000, time: "8m ago", hash: "0xyz234" },
-      { type: "Withdraw", protocol: "Aave", amount: 750000, time: "12m ago", hash: "0xabc567" },
-      { type: "Swap", protocol: "Uniswap", amount: 600000, time: "15m ago", hash: "0xdef890" },
+      { type: "Withdraw", protocol: "Aave", amount: "420 ETH", time: "3m ago", hash: "0xstu678" },
+      { type: "Withdraw", protocol: "Maker", amount: "380,000 DAI", time: "5m ago", hash: "0xvwx901" },
+      { type: "Swap", protocol: "Uniswap", amount: "280 ETH", time: "8m ago", hash: "0xyz234" },
+      { type: "Withdraw", protocol: "Aave", amount: "260 ETH", time: "12m ago", hash: "0xabc567" },
+      { type: "Swap", protocol: "Uniswap", amount: "210 ETH", time: "15m ago", hash: "0xdef890" },
     ],
     patternExplanation:
       "Rapid withdrawal of positions across protocols. Large volume exits suggest risk-off behavior or portfolio rebalancing.",
@@ -200,7 +197,14 @@ export function WhaleTracker() {
   const sortedAndFilteredWhales = whales
     .filter((whale) => filterPattern === "all" || whale.pattern === filterPattern)
     .sort((a, b) => {
-      if (sortBy === "volume") return b.totalVolume - a.totalVolume
+      if (sortBy === "volume") {
+        // Extract numeric value from volume string for sorting
+        const getNumericValue = (vol: string) => {
+          const num = parseFloat(vol.replace(/[^0-9.]/g, ''))
+          return vol.includes('ETH') ? num : num / 1000 // Normalize to ETH equivalent
+        }
+        return getNumericValue(b.totalVolume) - getNumericValue(a.totalVolume)
+      }
       if (sortBy === "confidence") return b.confidence - a.confidence
       return 0 // For "active", keep current order
     })
@@ -213,7 +217,7 @@ export function WhaleTracker() {
           <span>🐋</span>
           <span>Whale Activity</span>
         </h3>
-        <p className="text-sm text-white/60">Tracking wallets with 100K+ USD transactions</p>
+        <p className="text-sm text-white/60">Tracking wallets with 100+ ETH transactions</p>
       </div>
 
       {/* Controls */}
@@ -304,10 +308,9 @@ export function WhaleTracker() {
                 {/* Wallet Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    {whale.ensName && <span className="text-white font-semibold">{whale.ensName}</span>}
                     <button
                       onClick={() => handleCopyAddress(whale.address)}
-                      className="text-white/60 hover:text-white text-sm font-mono flex items-center gap-1 transition-colors"
+                      className="text-white hover:text-purple-400 text-sm font-mono flex items-center gap-1 transition-colors"
                     >
                       {whale.address.slice(0, 6)}...{whale.address.slice(-4)}
                       <Copy className="w-3 h-3" />
@@ -343,7 +346,7 @@ export function WhaleTracker() {
                 {/* Total Volume */}
                 <div>
                   <div className="text-xs text-white/60 mb-1">Total Volume</div>
-                  <div className="text-lg font-bold text-white">${(whale.totalVolume / 1000000).toFixed(1)}M</div>
+                  <div className="text-lg font-bold text-white">{whale.totalVolume}</div>
                 </div>
 
                 {/* Transaction Count */}
@@ -413,7 +416,7 @@ export function WhaleTracker() {
                             <span className="text-white/60">{tx.protocol}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-white font-semibold">${(tx.amount / 1000).toFixed(0)}K</span>
+                            <span className="text-white font-semibold">{tx.amount}</span>
                             <span className="text-white/40 text-xs">{tx.time}</span>
                             <a
                               href={`https://etherscan.io/tx/${tx.hash}`}

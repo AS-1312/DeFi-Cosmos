@@ -7,18 +7,14 @@ import { Wallet, Copy, LogOut, RefreshCw, TrendingUp, AlertTriangle, BarChart3 }
 interface ProtocolPosition {
   protocol: string
   color: string
-  amount: number
-  apy: number
+  tokens: string
   percentage: number
 }
 
 interface Recommendation {
-  type: "urgent" | "yield" | "rebalance"
+  type: "urgent" | "diversify" | "rebalance"
   title: string
   description: string
-  benefit?: string
-  breakEven?: string
-  gasCost?: string
   action: string
 }
 
@@ -29,17 +25,15 @@ export function PersonalDashboard() {
 
   // Mock portfolio data
   const portfolioData = {
-    totalDeposited: 125430,
-    weightedAPY: 8.4,
-    protocolsUsed: 4,
-    diversificationScore: 72,
+    totalDeposited: "5.2 ETH + 25,000 USDC + 10,000 DAI",
+    protocolsUsed: 3,
+    diversificationScore: 75,
   }
 
   const positions: ProtocolPosition[] = [
-    { protocol: "Aave", color: "#8b5cf6", amount: 45200, apy: 7.2, percentage: 36 },
-    { protocol: "Curve", color: "#3b82f6", amount: 38100, apy: 9.8, percentage: 30 },
-    { protocol: "Lido", color: "#f97316", amount: 28300, apy: 8.1, percentage: 23 },
-    { protocol: "Uniswap", color: "#ff007a", amount: 13830, apy: 12.5, percentage: 11 },
+    { protocol: "Aave", color: "#8b5cf6", tokens: "5.2 ETH", percentage: 45 },
+    { protocol: "Compound", color: "#3b82f6", tokens: "25,000 USDC", percentage: 35 },
+    { protocol: "Curve", color: "#f97316", tokens: "10,000 DAI", percentage: 20 },
   ]
 
   const recommendations: Recommendation[] = [
@@ -50,19 +44,16 @@ export function PersonalDashboard() {
       action: "Take Action",
     },
     {
-      type: "yield",
-      title: "Better Yield Available",
-      description: "Move 30% of your Curve position to Convex for higher yields on the same assets.",
-      benefit: "+$450/year",
-      breakEven: "12 days",
-      gasCost: "$45",
-      action: "Optimize",
-    },
-    {
-      type: "rebalance",
+      type: "diversify",
       title: "Improve Diversification",
       description: "Your portfolio is heavily weighted toward stablecoins. Consider adding ETH exposure via Lido.",
       action: "Rebalance",
+    },
+    {
+      type: "rebalance",
+      title: "Protocol Concentration",
+      description: "45% of your portfolio is in a single protocol. Consider spreading across more protocols for better risk management.",
+      action: "Diversify",
     },
   ]
 
@@ -124,20 +115,16 @@ export function PersonalDashboard() {
         </div>
 
         {/* Portfolio Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-lg bg-white/5 border border-white/10 md:col-span-2">
             <div className="text-sm text-gray-400 mb-1">Total Deposited</div>
-            <div className="text-2xl font-bold text-green-400">${portfolioData.totalDeposited.toLocaleString()}</div>
-          </div>
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <div className="text-sm text-gray-400 mb-1">Weighted APY</div>
-            <div className="text-2xl font-bold text-green-400">{portfolioData.weightedAPY}%</div>
+            <div className="text-xl font-bold text-green-400">{portfolioData.totalDeposited}</div>
           </div>
           <div className="p-4 rounded-lg bg-white/5 border border-white/10">
             <div className="text-sm text-gray-400 mb-1">Protocols Used</div>
             <div className="text-2xl font-bold text-white">{portfolioData.protocolsUsed}</div>
           </div>
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+          <div className="p-4 rounded-lg bg-white/5 border border-white/10 md:col-span-3">
             <div className="text-sm text-gray-400 mb-1">Diversification Score</div>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -146,7 +133,7 @@ export function PersonalDashboard() {
                   style={{ width: `${portfolioData.diversificationScore}%` }}
                 />
               </div>
-              <span className="text-lg font-bold text-white">{portfolioData.diversificationScore}</span>
+              <span className="text-lg font-bold text-white">{portfolioData.diversificationScore}/100</span>
             </div>
           </div>
         </div>
@@ -167,8 +154,7 @@ export function PersonalDashboard() {
                   <span className="text-white font-medium">{position.protocol}</span>
                 </div>
                 <div className="flex items-center gap-4 text-gray-400">
-                  <span>${position.amount.toLocaleString()}</span>
-                  <span className="text-green-400">{position.apy}% APY</span>
+                  <span>{position.tokens}</span>
                 </div>
               </div>
               <div className="relative h-8 bg-white/5 rounded-lg overflow-hidden cursor-pointer hover:bg-white/10 transition-colors">
@@ -202,20 +188,20 @@ export function PersonalDashboard() {
               className={`p-4 rounded-lg border ${
                 rec.type === "urgent"
                   ? "bg-red-500/10 border-red-500/30"
-                  : rec.type === "yield"
-                    ? "bg-green-500/10 border-green-500/30"
+                  : rec.type === "diversify"
+                    ? "bg-blue-500/10 border-blue-500/30"
                     : "bg-yellow-500/10 border-yellow-500/30"
               }`}
             >
               <div className="flex items-start gap-3">
                 <div
                   className={`mt-1 ${
-                    rec.type === "urgent" ? "text-red-400" : rec.type === "yield" ? "text-green-400" : "text-yellow-400"
+                    rec.type === "urgent" ? "text-red-400" : rec.type === "diversify" ? "text-blue-400" : "text-yellow-400"
                   }`}
                 >
                   {rec.type === "urgent" ? (
                     <AlertTriangle className="w-5 h-5" />
-                  ) : rec.type === "yield" ? (
+                  ) : rec.type === "diversify" ? (
                     <TrendingUp className="w-5 h-5" />
                   ) : (
                     <BarChart3 className="w-5 h-5" />
@@ -224,21 +210,14 @@ export function PersonalDashboard() {
                 <div className="flex-1">
                   <h4 className="font-semibold text-white mb-1">{rec.title}</h4>
                   <p className="text-sm text-gray-300 mb-3">{rec.description}</p>
-                  {rec.type === "yield" && (
-                    <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
-                      <span className="text-green-400 font-semibold">{rec.benefit}</span>
-                      <span>Break-even: {rec.breakEven}</span>
-                      <span>Gas: {rec.gasCost}</span>
-                    </div>
-                  )}
                   <Button
                     size="sm"
                     disabled
                     className={`${
                       rec.type === "urgent"
                         ? "bg-red-500/20 hover:bg-red-500/30 text-red-300"
-                        : rec.type === "yield"
-                          ? "bg-green-500/20 hover:bg-green-500/30 text-green-300"
+                        : rec.type === "diversify"
+                          ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-300"
                           : "bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300"
                     } cursor-not-allowed`}
                     title="Coming Soon"

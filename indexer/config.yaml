@@ -95,13 +95,21 @@ contracts:
     handler: src/EventHandlers.ts
     events:
       - event: NewCdp(address indexed usr, address indexed own, uint256 indexed cdp)
-  
+        field_selection:
+            transaction_fields:
+              - "hash"
+              - "gasPrice"
+
   # Vat (Core CDP engine) - LogNote is anonymous, limiting indexed params
   - name: MakerVat
     handler: src/EventHandlers.ts
     events:
       - event: LogNote(bytes4 indexed sig, address indexed usr, bytes32 indexed arg1, bytes32 arg2, bytes data)
-  
+        field_selection:
+            transaction_fields:
+              - "hash"
+              - "gasPrice"
+
   # Cat (Liquidations - before MakerDAO upgrade)
   - name: MakerCat
     handler: src/EventHandlers.ts
@@ -113,7 +121,11 @@ contracts:
     handler: src/EventHandlers.ts
     events:
       - event: Bark(bytes32 indexed ilk, address indexed urn, uint256 ink, uint256 art, uint256 due, address clip, uint256 id)
-
+        field_selection:
+              transaction_fields:
+                - "hash"
+                - "gasPrice"
+                
 networks:
   - id: 1
     start_block: 11473216 # Lido deployment (earliest of all protocols)

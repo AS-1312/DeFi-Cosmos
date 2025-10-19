@@ -426,3 +426,303 @@ type AaveHourlySnapshot @entity {
   uniqueUsers: Int!
   healthScore: Int!
 }
+
+# ============ LIDO ENTITIES ============
+
+type LidoProtocolStats @entity {
+  id: ID! # "lido"
+  name: String!
+  
+  # Staking metrics
+  totalStakedETH: BigDecimal! # Total ETH ever staked
+  totalStETH: BigDecimal! # Current stETH supply
+  
+  # Activity
+  totalSubmissions: BigInt! # Total stake transactions
+  submissions24h: BigInt!
+  totalTransfers: BigInt!
+  transfers24h: BigInt!
+  
+  # Users
+  uniqueStakers: BigInt!
+  uniqueStakers24h: BigInt!
+  
+  # Performance
+  avgStakeSize: BigDecimal!
+  avgGasPrice: BigInt!
+  tps: Float!
+  
+  lastUpdateTime: BigInt!
+  lastBlockNumber: BigInt!
+}
+
+type LidoTransaction @entity {
+  id: ID! # txHash-logIndex
+  txType: String! # "stake" | "transfer"
+  
+  from: String!
+  to: String # For transfers
+  amount: BigDecimal!
+  
+  # For stake transactions
+  referral: String
+  
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  logIndex: Int!
+  gasPrice: BigInt!
+}
+
+type LidoStaker @entity {
+  id: ID! # staker address
+  staker: String!
+  
+  totalStakedETH: BigDecimal!
+  stakeCount: Int!
+  
+  firstStakeTime: BigInt!
+  lastStakeTime: BigInt!
+}
+
+# ============ CURVE ENTITIES ============
+
+type CurvePool @entity {
+  id: ID! # pool address
+  name: String!
+  poolType: String! # "3pool" | "steth" | "tricrypto"
+  
+  # Tokens in pool
+  tokens: [String!]!
+  tokenSymbols: [String!]!
+  
+  # Volume
+  volumeTotal: BigDecimal!
+  volume24h: BigDecimal!
+  
+  # Liquidity
+  totalLiquidity: BigDecimal! # LP token supply
+  
+  # Activity
+  swapCount: BigInt!
+  swapCount24h: BigInt!
+  addLiquidityCount: BigInt!
+  removeLiquidityCount: BigInt!
+  
+  # Users
+  uniqueUsers: BigInt!
+  
+  createdAtTimestamp: BigInt!
+  lastActivityTimestamp: BigInt!
+}
+
+type CurveProtocolStats @entity {
+  id: ID! # "curve"
+  name: String!
+  
+  # Pools
+  poolCount: Int!
+  
+  # Volume by major tokens
+  volumeTotalUSDC: BigDecimal!
+  volume24hUSDC: BigDecimal!
+  volumeTotalETH: BigDecimal!
+  volume24hETH: BigDecimal!
+  volumeTotalDAI: BigDecimal!
+  volume24hDAI: BigDecimal!
+  
+  # Activity
+  totalSwaps: BigInt!
+  swaps24h: BigInt!
+  totalLiquidityAdds: BigInt!
+  liquidityAdds24h: BigInt!
+  totalLiquidityRemoves: BigInt!
+  liquidityRemoves24h: BigInt!
+  
+  # Users
+  uniqueUsers: BigInt!
+  uniqueUsers24h: BigInt!
+  
+  # Performance
+  avgGasPrice: BigInt!
+  tps: Float!
+  
+  lastUpdateTime: BigInt!
+  lastBlockNumber: BigInt!
+}
+
+type CurveTransaction @entity {
+  id: ID! # txHash-logIndex
+  pool: CurvePool!
+  poolId: String!
+  txType: String! # "swap" | "add_liquidity" | "remove_liquidity"
+  
+  user: String!
+  
+  # Swap specific
+  soldTokenIndex: Int
+  boughtTokenIndex: Int
+  tokensSold: BigDecimal
+  tokensBought: BigDecimal
+  
+  # Liquidity specific
+  tokenAmounts: String
+  lpTokenAmount: BigDecimal
+  
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  logIndex: Int!
+  gasPrice: BigInt!
+}
+
+# ============ MAKERDAO ENTITIES ============
+
+type MakerVault @entity {
+  id: ID! # vault ID (CDP number)
+  owner: String!
+  ilk: String! # Collateral type (e.g., "ETH-A")
+  
+  # Collateral
+  collateralAmount: BigDecimal! # ink
+  collateralType: String!
+  
+  # Debt
+  debtAmount: BigDecimal! # art (normalized debt)
+  
+  # Status
+  isActive: Boolean!
+  liquidated: Boolean!
+  
+  # Activity counts
+  modificationCount: Int!
+  
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+  lastModifiedTimestamp: BigInt!
+}
+
+type MakerProtocolStats @entity {
+  id: ID! # "maker"
+  name: String!
+  
+  # Vaults
+  totalVaults: Int!
+  activeVaults: Int!
+  
+  # Collateral by type
+  totalCollateralETH: BigDecimal!
+  totalCollateralWBTC: BigDecimal!
+  
+  # DAI
+  totalDAIMinted: BigDecimal!
+  totalDAIRepaid: BigDecimal!
+  outstandingDAI: BigDecimal!
+  
+  # Activity
+  totalVaultModifications: BigInt!
+  vaultModifications24h: BigInt!
+  totalLiquidations: BigInt!
+  liquidations24h: BigInt!
+  
+  # Users
+  uniqueVaultOwners: BigInt!
+  
+  # Performance
+  avgCollateralizationRatio: Float!
+  avgGasPrice: BigInt!
+  
+  # Health
+  healthScore: Int!
+  
+  lastUpdateTime: BigInt!
+  lastBlockNumber: BigInt!
+}
+
+type MakerTransaction @entity {
+  id: ID! # txHash-logIndex
+  txType: String! # "vault_open" | "vault_modify" | "liquidation"
+  
+  # Vault info
+  vaultId: String
+  owner: String!
+  ilk: String # Collateral type
+  
+  # Amounts
+  collateralDelta: BigDecimal # Change in collateral
+  debtDelta: BigDecimal # Change in debt
+  
+  # Liquidation specific
+  liquidator: String
+  collateralLiquidated: BigDecimal
+  debtCovered: BigDecimal
+  
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  logIndex: Int!
+  gasPrice: BigInt!
+}
+
+# ============ UPDATED GLOBAL STATS ============
+
+type GlobalStats @entity {
+  id: ID! # "global"
+  
+  # Protocol counts
+  protocolCount: Int! # 5 protocols
+  
+  # Aggregate metrics
+  totalTransactions: BigInt!
+  transactions24h: BigInt!
+  
+  # Users across all protocols
+  totalUniqueUsers: BigInt!
+  uniqueUsers24h: BigInt!
+  
+  # Cross-protocol activity
+  crossProtocolFlows: Int!
+  multiProtocolWhales: Int!
+  
+  lastUpdateTime: BigInt!
+}
+
+# ============ HOURLY SNAPSHOTS ============
+
+type LidoHourlySnapshot @entity {
+  id: ID! # "lido-{timestamp}"
+  timestamp: BigInt!
+  
+  totalStakedETH: BigDecimal!
+  totalStETH: BigDecimal!
+  submissions: Int!
+  transfers: Int!
+  uniqueStakers: Int!
+  avgGasPrice: BigInt!
+}
+
+type CurveHourlySnapshot @entity {
+  id: ID! # "curve-{timestamp}"
+  timestamp: BigInt!
+  
+  volumeETH: BigDecimal!
+  volumeUSDC: BigDecimal!
+  volumeDAI: BigDecimal!
+  swaps: Int!
+  liquidityAdds: Int!
+  liquidityRemoves: Int!
+  uniqueUsers: Int!
+}
+
+type MakerHourlySnapshot @entity {
+  id: ID! # "maker-{timestamp}"
+  timestamp: BigInt!
+  
+  totalVaults: Int!
+  activeVaults: Int!
+  totalCollateralETH: BigDecimal!
+  outstandingDAI: BigDecimal!
+  vaultModifications: Int!
+  liquidations: Int!
+  avgCollateralizationRatio: Float!
+}

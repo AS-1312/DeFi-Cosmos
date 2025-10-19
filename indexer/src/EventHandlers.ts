@@ -2,6 +2,7 @@
 import "./uniswapHandlers";
 import "./aaveHandlers";
 import "./lidoHandlers";
+import "./curveHandlers";
 
 // Re-export common utilities
 export * from "./common";

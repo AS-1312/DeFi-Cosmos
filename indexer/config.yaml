@@ -53,10 +53,26 @@ contracts:
     handler: src/EventHandlers.ts
     events:
       - event: TokenExchange(address indexed buyer, int128 sold_id, uint256 tokens_sold, int128 bought_id, uint256 tokens_bought)
+        field_selection:
+          transaction_fields:
+            - "hash"
+            - "gasPrice"
       - event: AddLiquidity(address indexed provider, uint256[3] token_amounts, uint256[3] fees, uint256 invariant, uint256 token_supply)
+        field_selection:
+          transaction_fields:
+            - "hash"
+            - "gasPrice"
       - event: RemoveLiquidity(address indexed provider, uint256[3] token_amounts, uint256[3] fees, uint256 token_supply)
+        field_selection:
+          transaction_fields:
+            - "hash"
+            - "gasPrice"
       - event: RemoveLiquidityOne(address indexed provider, uint256 token_amount, uint256 coin_amount)
-  
+        field_selection:
+          transaction_fields:
+            - "hash"
+            - "gasPrice"
+
   # Curve stETH/ETH pool
   - name: CurveStETHPool
     handler: src/EventHandlers.ts

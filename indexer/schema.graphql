@@ -190,3 +190,239 @@ type Token @entity {
   poolCount: Int!
   totalVolume: BigDecimal!
 }
+
+# ============ AAVE V3 SPECIFIC ENTITIES ============
+
+type AaveReserve @entity {
+  id: ID! # reserve token address
+  symbol: String!
+  name: String!
+  decimals: Int!
+  
+  # Total amounts
+  totalSupplied: BigDecimal!
+  totalBorrowed: BigDecimal!
+  
+  # Rates (in Ray units: 1e27)
+  liquidityRate: BigInt! # Deposit APY
+  stableBorrowRate: BigInt!
+  variableBorrowRate: BigInt! # Borrow APY
+  
+  # Indexes
+  liquidityIndex: BigInt!
+  variableBorrowIndex: BigInt!
+  
+  # Utilization
+  utilizationRate: Float! # totalBorrowed / totalSupplied
+  
+  # Activity
+  supplyCount: BigInt!
+  borrowCount: BigInt!
+  liquidationCount: BigInt!
+  
+  lastUpdateTimestamp: BigInt!
+  lastUpdateBlockNumber: BigInt!
+}
+
+type AaveProtocolStats @entity {
+  id: ID! # "aave-v3"
+  name: String!
+  
+  # TVL in major assets
+  totalSuppliedETH: BigDecimal!
+  totalSuppliedUSDC: BigDecimal!
+  totalSuppliedDAI: BigDecimal!
+  totalSuppliedWBTC: BigDecimal!
+  
+  # Borrowed amounts
+  totalBorrowedETH: BigDecimal!
+  totalBorrowedUSDC: BigDecimal!
+  totalBorrowedDAI: BigDecimal!
+  totalBorrowedWBTC: BigDecimal!
+  
+  # Global utilization
+  globalUtilizationRate: Float!
+  
+  # Activity counts
+  totalSupplies: BigInt!
+  supplies24h: BigInt!
+  totalWithdrawals: BigInt!
+  withdrawals24h: BigInt!
+  totalBorrows: BigInt!
+  borrows24h: BigInt!
+  totalRepays: BigInt!
+  repays24h: BigInt!
+  totalLiquidations: BigInt!
+  liquidations24h: BigInt!
+  
+  # Users
+  uniqueSuppliers: BigInt!
+  uniqueBorrowers: BigInt!
+  uniqueUsers24h: BigInt!
+  
+  # Performance
+  avgGasPrice: BigInt!
+  tps: Float!
+  
+  # Health
+  healthScore: Int! # 0-100 based on utilization, liquidations, etc.
+  
+  lastUpdateTime: BigInt!
+  lastBlockNumber: BigInt!
+}
+
+type AaveTransaction @entity {
+  id: ID! # txHash-logIndex
+  txType: String! # "supply" | "withdraw" | "borrow" | "repay" | "liquidation"
+  
+  # User
+  user: String!
+  onBehalfOf: String # For supply/borrow
+  
+  # Asset
+  reserve: String! # Token address
+  reserveSymbol: String!
+  amount: BigDecimal!
+  
+  # Liquidation specific
+  collateralAsset: String
+  debtAsset: String
+  liquidator: String
+  debtToCover: BigDecimal
+  liquidatedCollateralAmount: BigDecimal
+  
+  # Borrow specific
+  interestRateMode: Int # 1 = stable, 2 = variable
+  borrowRate: BigInt
+  
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  logIndex: Int!
+  gasPrice: BigInt!
+}
+
+type AaveUserPosition @entity {
+  id: ID! # user-reserve
+  user: String!
+  reserve: String!
+  reserveSymbol: String!
+  
+  # Balances
+  suppliedAmount: BigDecimal!
+  borrowedAmount: BigDecimal!
+  
+  # Activity
+  supplyCount: Int!
+  withdrawCount: Int!
+  borrowCount: Int!
+  repayCount: Int!
+  
+  firstSupplyTime: BigInt
+  lastActivityTime: BigInt!
+}
+
+# ============ CROSS-PROTOCOL ENTITIES ============
+
+type CrossProtocolFlow @entity {
+  id: ID! # flow-id
+  wallet: String!
+  
+  # From (can be Uniswap or Aave)
+  fromProtocol: String! # "uniswap-v4" | "aave-v3"
+  fromPoolOrReserve: String!
+  
+  # To (can be Uniswap or Aave)
+  toProtocol: String! # "uniswap-v4" | "aave-v3"
+  toPoolOrReserve: String!
+  
+  # Asset moved
+  tokenAddress: String!
+  tokenSymbol: String!
+  amount: BigDecimal!
+  
+  timestamp: BigInt!
+  timeDelta: Int! # Seconds between transactions
+  flowType: String! # "liquidity_rebalancing" | "yield_farming" | "arbitrage"
+  
+  fromTxHash: String!
+  toTxHash: String!
+}
+
+# ============ ENHANCED WHALE ACTIVITY (Multi-Protocol) ============
+
+type MultiProtocolWhale @entity {
+  id: ID! # wallet address
+  wallet: String!
+  
+  # Uniswap V4 activity
+  uniswapVolumeETH: BigDecimal!
+  uniswapVolumeUSDC: BigDecimal!
+  uniswapSwapCount: Int!
+  
+  # Aave V3 activity
+  aaveSuppliedETH: BigDecimal!
+  aaveSuppliedUSDC: BigDecimal!
+  aaveBorrowedETH: BigDecimal!
+  aaveBorrowedUSDC: BigDecimal!
+  aaveSupplyCount: Int!
+  aaveBorrowCount: Int!
+  
+  # Cross-protocol
+  protocolsUsed: [String!]! # ["uniswap-v4", "aave-v3"]
+  crossProtocolFlows: Int!
+  
+  # Overall
+  totalTransactionCount: Int!
+  largestTransactionETH: BigDecimal!
+  
+  firstSeenTime: BigInt!
+  lastActiveTime: BigInt!
+}
+
+# ============ PROTOCOL HEALTH (Multi-Protocol) ============
+
+type ProtocolHealthSnapshot @entity {
+  id: ID! # protocol-timestamp
+  protocol: String! # "uniswap-v4" | "aave-v3"
+  timestamp: BigInt!
+  
+  healthScore: Int! # 0-100
+  
+  # Indicators (protocol-specific)
+  utilizationRate: Float
+  tvlChangePercent24h: Float
+  whaleExits1h: Int!
+  gasSpike: Float!
+  liquidationCount1h: Int! # Aave specific
+  
+  warnings: String! # JSON array
+}
+
+# ============ HOURLY SNAPSHOTS (Multi-Protocol) ============
+
+type AaveHourlySnapshot @entity {
+  id: ID! # "aave-v3-{timestamp}"
+  timestamp: BigInt!
+  
+  # Supplied
+  totalSuppliedETH: BigDecimal!
+  totalSuppliedUSDC: BigDecimal!
+  
+  # Borrowed
+  totalBorrowedETH: BigDecimal!
+  totalBorrowedUSDC: BigDecimal!
+  
+  # Utilization
+  globalUtilizationRate: Float!
+  
+  # Activity
+  supplies: Int!
+  withdrawals: Int!
+  borrows: Int!
+  repays: Int!
+  liquidations: Int!
+  
+  uniqueUsers: Int!
+  healthScore: Int!
+}

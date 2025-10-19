@@ -1,12 +1,10 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: envio-indexer
-networks:
-- id: 1
-  start_block: 21193790
-  contracts:
+unordered_multichain_mode: true
+preload_handlers: true
+
+contracts:
   - name: PoolManager
-    address:
-    - '0x000000000004444c5dc75cB358380D2e3dE08A90'
     handler: src/EventHandlers.ts
     events:
     - event: Initialize(bytes32 indexed id, address indexed currency0, address indexed currency1, uint24 fee, int24 tickSpacing, address hooks, uint160 sqrtPriceX96, int24 tick)
@@ -24,5 +22,24 @@ networks:
         transaction_fields:
           - "hash"
           - "gasPrice"
-unordered_multichain_mode: true
-preload_handlers: true
+  
+  - name: AaveV3Pool
+    handler: src/EventHandlers.ts
+    events:
+    - event: Supply(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint16 indexed referralCode)
+    - event: Withdraw(address indexed reserve, address indexed user, address indexed to, uint256 amount)
+    - event: Borrow(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint8 interestRateMode, uint256 borrowRate, uint16 indexed referralCode)
+    - event: Repay(address indexed reserve, address indexed user, address indexed repayer, uint256 amount, bool useATokens)
+    - event: LiquidationCall(address indexed collateralAsset, address indexed debtAsset, address indexed user, uint256 debtToCover, uint256 liquidatedCollateralAmount, address liquidator, bool receiveAToken)
+    - event: ReserveDataUpdated(address indexed reserve, uint256 liquidityRate, uint256 stableBorrowRate, uint256 variableBorrowRate, uint256 liquidityIndex, uint256 variableBorrowIndex)
+
+networks:
+  - id: 1
+    start_block: 16291127
+    contracts:
+      - name: PoolManager
+        address:
+          - '0x000000000004444c5dc75cB358380D2e3dE08A90'
+      - name: AaveV3Pool
+        address:
+          - '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'

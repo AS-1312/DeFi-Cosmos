@@ -8,11 +8,13 @@ import {
   WhaleActivity,
   CapitalFlow,
   BigDecimal,
+  AaveV3Pool,
 } from "../generated";
 
 // ============ CONSTANTS ============
 
-const PROTOCOL_ID = "uniswap-v4";
+const PROTOCOL_UNISWAP = "uniswap-v4";
+const PROTOCOL_AAVE = "aave-v3";
 const HOUR_IN_SECONDS = 3600;
 const CAPITAL_FLOW_WINDOW = 300; // 5 minutes
 
@@ -38,14 +40,21 @@ const TOKEN_SYMBOLS: { [key: string]: string } = {
   [DAI_ADDRESS.toLowerCase()]: "DAI",
 };
 
+const TOKEN_DECIMALS: { [key: string]: number } = {
+  [WETH_ADDRESS]: 18,
+  [USDC_ADDRESS]: 6,
+  [WBTC_ADDRESS]: 8,
+  [DAI_ADDRESS]: 18,
+};
+
 // ============ HELPER FUNCTIONS ============
 
 async function getOrCreateProtocolStats(context: any, timestamp: bigint, blockNumber: bigint): Promise<ProtocolStats> {
-  let stats = await context.ProtocolStats.get(PROTOCOL_ID);
+  let stats = await context.ProtocolStats.get(PROTOCOL_UNISWAP);
   
   if (!stats) {
     stats = {
-      id: PROTOCOL_ID,
+      id: PROTOCOL_UNISWAP,
       name: "Uniswap V4",
       poolCount: 0,
       volumeTotalETH: new BigDecimal(0),
@@ -72,6 +81,11 @@ async function getOrCreateProtocolStats(context: any, timestamp: bigint, blockNu
 function getTokenSymbol(address: string): string {
   const lowerAddress = address.toLowerCase();
   return TOKEN_SYMBOLS[lowerAddress] || "UNKNOWN";
+}
+
+function getTokenDecimals(address: string): number {
+  const lowerAddress = address.toLowerCase();
+  return TOKEN_DECIMALS[lowerAddress] || 18;
 }
 
 function isWhaleTransaction(tokenAddress: string, amount: bigint): boolean {
@@ -112,7 +126,7 @@ async function updateProtocolMetrics(
 
 async function createHourlySnapshot(context: any, timestamp: bigint, stats: ProtocolStats): Promise<void> {
   const hourTimestamp = (timestamp / BigInt(HOUR_IN_SECONDS)) * BigInt(HOUR_IN_SECONDS);
-  const snapshotId = `${PROTOCOL_ID}-${hourTimestamp}`;
+  const snapshotId = `${PROTOCOL_UNISWAP}-${hourTimestamp}`;
   
   // Check if already exists
   const existing = await context.HourlySnapshot.get(snapshotId);
@@ -508,4 +522,903 @@ PoolManager.ModifyLiquidity.handler(async ({ event, context }: any) => {
     BigInt(event.block.number),
     BigInt(event.transaction.gasPrice || 0)
   );
+});
+
+// ============ AAVE HELPERS ============
+
+async function getOrCreateAaveProtocolStats(
+  timestamp: bigint,
+  blockNumber: bigint,
+  context: any
+): Promise<any> {
+  let stats = await context.AaveProtocolStats.get(PROTOCOL_AAVE);
+  
+  if (!stats) {
+    stats = {
+      id: PROTOCOL_AAVE,
+      name: "Aave V3",
+      totalSuppliedETH: new BigDecimal(0),
+      totalSuppliedUSDC: new BigDecimal(0),
+      totalSuppliedDAI: new BigDecimal(0),
+      totalSuppliedWBTC: new BigDecimal(0),
+      totalBorrowedETH: new BigDecimal(0),
+      totalBorrowedUSDC: new BigDecimal(0),
+      totalBorrowedDAI: new BigDecimal(0),
+      totalBorrowedWBTC: new BigDecimal(0),
+      globalUtilizationRate: 0,
+      totalSupplies: BigInt(0),
+      supplies24h: BigInt(0),
+      totalWithdrawals: BigInt(0),
+      withdrawals24h: BigInt(0),
+      totalBorrows: BigInt(0),
+      borrows24h: BigInt(0),
+      totalRepays: BigInt(0),
+      repays24h: BigInt(0),
+      totalLiquidations: BigInt(0),
+      liquidations24h: BigInt(0),
+      uniqueSuppliers: BigInt(0),
+      uniqueBorrowers: BigInt(0),
+      uniqueUsers24h: BigInt(0),
+      avgGasPrice: BigInt(0),
+      tps: 0,
+      healthScore: 100,
+      lastUpdateTime: timestamp,
+      lastBlockNumber: blockNumber,
+    };
+  }
+  
+  return stats;
+}
+
+async function getOrCreateAaveReserve(reserve: string, context: any): Promise<any> {
+  let reserveEntity = await context.AaveReserve.get(reserve);
+  
+  if (!reserveEntity) {
+    const symbol = getTokenSymbol(reserve);
+    const decimals = getTokenDecimals(reserve);
+    
+    reserveEntity = {
+      id: reserve,
+      symbol: symbol,
+      name: symbol,
+      decimals: decimals,
+      totalSupplied: new BigDecimal(0),
+      totalBorrowed: new BigDecimal(0),
+      liquidityRate: BigInt(0),
+      stableBorrowRate: BigInt(0),
+      variableBorrowRate: BigInt(0),
+      liquidityIndex: BigInt(0),
+      variableBorrowIndex: BigInt(0),
+      utilizationRate: 0,
+      supplyCount: BigInt(0),
+      borrowCount: BigInt(0),
+      liquidationCount: BigInt(0),
+      lastUpdateTimestamp: BigInt(0),
+      lastUpdateBlockNumber: BigInt(0),
+    };
+  }
+  
+  return reserveEntity;
+}
+
+function calculateUtilization(totalSupplied: any, totalBorrowed: any): number {
+  // Convert to BigDecimal in case they come from DB as plain values
+  const supplied = new BigDecimal(totalSupplied.toString());
+  const borrowed = new BigDecimal(totalBorrowed.toString());
+  
+  if (supplied.isEqualTo(0)) return 0;
+  return borrowed.dividedBy(supplied).toNumber();
+}
+
+async function detectCrossProtocolFlow(
+  currentTx: any,
+  wallet: string,
+  protocol: string,
+  timestamp: bigint,
+  context: any
+): Promise<void> {
+  // Simplified: Skip cross-protocol flow detection for now
+  // The query API doesn't support .limit() after .eq()
+  // and we can't efficiently query recent transactions by user
+  // This feature would require a different indexing approach
+  
+  // TODO: Implement cross-protocol flow detection when:
+  // 1. Query API supports more complex filtering
+  // 2. Or maintain a separate in-memory cache of recent transactions
+  // 3. Or use a different data structure for efficient time-based queries
+  
+  return;
+}
+
+async function updateMultiProtocolWhale(
+  wallet: string,
+  protocol: string,
+  tokenAddress: string,
+  amount: bigint,
+  txType: string,
+  timestamp: bigint,
+  context: any
+): Promise<void> {
+  if (!isWhaleTransaction(tokenAddress, amount)) return;
+  
+  let whale = await context.MultiProtocolWhale.get(wallet);
+  
+  const tokenSymbol = getTokenSymbol(tokenAddress);
+  const absAmount = amount < 0 ? -amount : amount;
+  const absAmountDecimal = new BigDecimal(absAmount.toString());
+  
+  if (!whale) {
+    whale = {
+      id: wallet,
+      wallet: wallet,
+      uniswapVolumeETH: new BigDecimal(0),
+      uniswapVolumeUSDC: new BigDecimal(0),
+      uniswapSwapCount: 0,
+      aaveSuppliedETH: new BigDecimal(0),
+      aaveSuppliedUSDC: new BigDecimal(0),
+      aaveBorrowedETH: new BigDecimal(0),
+      aaveBorrowedUSDC: new BigDecimal(0),
+      aaveSupplyCount: 0,
+      aaveBorrowCount: 0,
+      protocolsUsed: [protocol],
+      crossProtocolFlows: 0,
+      totalTransactionCount: 1,
+      largestTransactionETH: tokenSymbol === "ETH" ? absAmountDecimal : new BigDecimal(0),
+      firstSeenTime: timestamp,
+      lastActiveTime: timestamp,
+    };
+    
+    // Set initial amounts based on protocol and token
+    if (protocol === PROTOCOL_AAVE) {
+      if (txType === "supply") {
+        whale.aaveSupplyCount = 1;
+        if (tokenSymbol === "ETH") whale.aaveSuppliedETH = absAmountDecimal;
+        else if (tokenSymbol === "USDC") whale.aaveSuppliedUSDC = absAmountDecimal;
+      } else if (txType === "borrow") {
+        whale.aaveBorrowCount = 1;
+        if (tokenSymbol === "ETH") whale.aaveBorrowedETH = absAmountDecimal;
+        else if (tokenSymbol === "USDC") whale.aaveBorrowedUSDC = absAmountDecimal;
+      }
+    } else if (protocol === PROTOCOL_UNISWAP) {
+      whale.uniswapSwapCount = 1;
+      if (tokenSymbol === "ETH") whale.uniswapVolumeETH = absAmountDecimal;
+      else if (tokenSymbol === "USDC") whale.uniswapVolumeUSDC = absAmountDecimal;
+    }
+  } else {
+    // Convert DB BigDecimal fields to BigDecimal instances
+    const whaleUniswapVolumeETH = new BigDecimal(whale.uniswapVolumeETH.toString());
+    const whaleUniswapVolumeUSDC = new BigDecimal(whale.uniswapVolumeUSDC.toString());
+    const whaleAaveSuppliedETH = new BigDecimal(whale.aaveSuppliedETH.toString());
+    const whaleAaveSuppliedUSDC = new BigDecimal(whale.aaveSuppliedUSDC.toString());
+    const whaleAaveBorrowedETH = new BigDecimal(whale.aaveBorrowedETH.toString());
+    const whaleAaveBorrowedUSDC = new BigDecimal(whale.aaveBorrowedUSDC.toString());
+    const whaleLargestTransactionETH = new BigDecimal(whale.largestTransactionETH.toString());
+    
+    // Update existing whale with immutable pattern
+    const updatedProtocolsUsed = whale.protocolsUsed.includes(protocol) 
+      ? whale.protocolsUsed 
+      : [...whale.protocolsUsed, protocol];
+    
+    const updatedWhale: any = {
+      ...whale,
+      protocolsUsed: updatedProtocolsUsed,
+      lastActiveTime: timestamp,
+      totalTransactionCount: whale.totalTransactionCount + 1,
+      uniswapVolumeETH: whaleUniswapVolumeETH,
+      uniswapVolumeUSDC: whaleUniswapVolumeUSDC,
+      aaveSuppliedETH: whaleAaveSuppliedETH,
+      aaveSuppliedUSDC: whaleAaveSuppliedUSDC,
+      aaveBorrowedETH: whaleAaveBorrowedETH,
+      aaveBorrowedUSDC: whaleAaveBorrowedUSDC,
+      largestTransactionETH: whaleLargestTransactionETH,
+    };
+    
+    if (protocol === PROTOCOL_AAVE) {
+      if (txType === "supply") {
+        updatedWhale.aaveSupplyCount = whale.aaveSupplyCount + 1;
+        if (tokenSymbol === "ETH") {
+          updatedWhale.aaveSuppliedETH = whaleAaveSuppliedETH.plus(absAmountDecimal);
+        } else if (tokenSymbol === "USDC") {
+          updatedWhale.aaveSuppliedUSDC = whaleAaveSuppliedUSDC.plus(absAmountDecimal);
+        }
+      } else if (txType === "borrow") {
+        updatedWhale.aaveBorrowCount = whale.aaveBorrowCount + 1;
+        if (tokenSymbol === "ETH") {
+          updatedWhale.aaveBorrowedETH = whaleAaveBorrowedETH.plus(absAmountDecimal);
+        } else if (tokenSymbol === "USDC") {
+          updatedWhale.aaveBorrowedUSDC = whaleAaveBorrowedUSDC.plus(absAmountDecimal);
+        }
+      }
+    } else if (protocol === PROTOCOL_UNISWAP) {
+      updatedWhale.uniswapSwapCount = whale.uniswapSwapCount + 1;
+      if (tokenSymbol === "ETH") {
+        updatedWhale.uniswapVolumeETH = whaleUniswapVolumeETH.plus(absAmountDecimal);
+        if (absAmountDecimal.isGreaterThan(whaleLargestTransactionETH)) {
+          updatedWhale.largestTransactionETH = absAmountDecimal;
+        }
+      } else if (tokenSymbol === "USDC") {
+        updatedWhale.uniswapVolumeUSDC = whaleUniswapVolumeUSDC.plus(absAmountDecimal);
+      }
+    }
+    
+    whale = updatedWhale;
+  }
+  
+  context.MultiProtocolWhale.set(whale);
+}
+
+async function calculateAaveHealthScore(
+  stats: any,
+  timestamp: bigint,
+  context: any
+): Promise<number> {
+  let score = 100;
+  const warnings: string[] = [];
+  
+  // High global utilization
+  if (stats.globalUtilizationRate > 0.85) {
+    warnings.push(`High utilization: ${(stats.globalUtilizationRate * 100).toFixed(1)}%`);
+    score -= 20;
+  }
+  
+  // Use stats counters instead of querying transactions
+  // Recent liquidations based on 24h counter
+  if (stats.liquidations24h >= BigInt(10)) {
+    warnings.push(`${stats.liquidations24h} liquidations in last 24h`);
+    score -= 30;
+  }
+  
+  // Check utilization as proxy for whale exits
+  // (since we can't efficiently query recent transactions)
+  if (stats.withdrawals24h > stats.supplies24h * BigInt(2)) {
+    warnings.push(`High withdrawal activity: ${stats.withdrawals24h} withdrawals vs ${stats.supplies24h} supplies`);
+    score -= 25;
+  }
+  
+  // Save health snapshot
+  const snapshot = {
+    id: `${PROTOCOL_AAVE}-${timestamp}`,
+    protocol: PROTOCOL_AAVE,
+    timestamp: timestamp,
+    healthScore: Math.max(0, score),
+    utilizationRate: stats.globalUtilizationRate,
+    tvlChangePercent24h: 0, // Calculate from snapshots
+    whaleExits1h: 0, // Would need efficient time-based queries
+    gasSpike: 1.0,
+    liquidationCount1h: Number(stats.liquidations24h),
+    warnings: JSON.stringify(warnings),
+  };
+  
+  context.ProtocolHealthSnapshot.set(snapshot);
+  
+  return Math.max(0, score);
+}
+
+// ============ AAVE EVENT HANDLERS ============
+
+/**
+ * Handle Supply events
+ */
+AaveV3Pool.Supply.handler(async ({ event, context }: any) => {
+  const { reserve, user, onBehalfOf, amount, referralCode } = event.params;
+  
+  // Get or create reserve
+  const reserveEntity = await getOrCreateAaveReserve(reserve, context);
+  const amountDecimal = new BigDecimal(amount.toString());
+  const reserveTotalSupplied = new BigDecimal(reserveEntity.totalSupplied.toString());
+  const reserveTotalBorrowed = new BigDecimal(reserveEntity.totalBorrowed.toString());
+  const newTotalSupplied = reserveTotalSupplied.plus(amountDecimal);
+  
+  const updatedReserve = {
+    ...reserveEntity,
+    totalSupplied: newTotalSupplied,
+    supplyCount: reserveEntity.supplyCount + BigInt(1),
+    utilizationRate: calculateUtilization(
+      newTotalSupplied,
+      reserveTotalBorrowed
+    ),
+    lastUpdateTimestamp: BigInt(event.block.timestamp),
+    lastUpdateBlockNumber: BigInt(event.block.number),
+  };
+  context.AaveReserve.set(updatedReserve);
+  
+  // Create transaction record
+  const txId = `${event.transaction.hash}-${event.logIndex}`;
+  const transaction = {
+    id: txId,
+    txType: "supply",
+    user: user,
+    onBehalfOf: onBehalfOf,
+    reserve: reserve,
+    reserveSymbol: getTokenSymbol(reserve),
+    amount: amount,
+    collateralAsset: undefined,
+    debtAsset: undefined,
+    liquidator: undefined,
+    debtToCover: undefined,
+    liquidatedCollateralAmount: undefined,
+    interestRateMode: undefined,
+    borrowRate: undefined,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+    gasPrice: BigInt(event.transaction.gasPrice || 0),
+  };
+  context.AaveTransaction.set(transaction);
+  
+  // Update protocol stats
+  const stats = await getOrCreateAaveProtocolStats(
+    BigInt(event.block.timestamp),
+    BigInt(event.block.number),
+    context
+  );
+  
+  const tokenSymbol = getTokenSymbol(reserve);
+  const amountBigDecimal = new BigDecimal(amount.toString());
+  
+  // Convert DB BigDecimal fields to BigDecimal instances
+  const statsTotalSuppliedETH = new BigDecimal(stats.totalSuppliedETH.toString());
+  const statsTotalSuppliedUSDC = new BigDecimal(stats.totalSuppliedUSDC.toString());
+  const statsTotalSuppliedDAI = new BigDecimal(stats.totalSuppliedDAI.toString());
+  const statsTotalSuppliedWBTC = new BigDecimal(stats.totalSuppliedWBTC.toString());
+  const statsTotalBorrowedETH = new BigDecimal(stats.totalBorrowedETH.toString());
+  const statsTotalBorrowedUSDC = new BigDecimal(stats.totalBorrowedUSDC.toString());
+  
+  const updatedStats = {
+    ...stats,
+    totalSupplies: stats.totalSupplies + BigInt(1),
+    supplies24h: stats.supplies24h + BigInt(1),
+    totalSuppliedETH: tokenSymbol === "ETH" ? statsTotalSuppliedETH.plus(amountBigDecimal) : statsTotalSuppliedETH,
+    totalSuppliedUSDC: tokenSymbol === "USDC" ? statsTotalSuppliedUSDC.plus(amountBigDecimal) : statsTotalSuppliedUSDC,
+    totalSuppliedDAI: tokenSymbol === "DAI" ? statsTotalSuppliedDAI.plus(amountBigDecimal) : statsTotalSuppliedDAI,
+    totalSuppliedWBTC: tokenSymbol === "WBTC" ? statsTotalSuppliedWBTC.plus(amountBigDecimal) : statsTotalSuppliedWBTC,
+  };
+  
+  // Calculate global utilization - convert to BigDecimal for arithmetic
+  const updatedTotalSuppliedETH = new BigDecimal(updatedStats.totalSuppliedETH.toString());
+  const updatedTotalSuppliedUSDC = new BigDecimal(updatedStats.totalSuppliedUSDC.toString());
+  const updatedTotalBorrowedETH = new BigDecimal(updatedStats.totalBorrowedETH.toString());
+  const updatedTotalBorrowedUSDC = new BigDecimal(updatedStats.totalBorrowedUSDC.toString());
+  
+  const totalSupplied = updatedTotalSuppliedETH.plus(updatedTotalSuppliedUSDC);
+  const totalBorrowed = updatedTotalBorrowedETH.plus(updatedTotalBorrowedUSDC);
+  
+  const finalStats = {
+    ...updatedStats,
+    globalUtilizationRate: calculateUtilization(totalSupplied, totalBorrowed),
+    healthScore: await calculateAaveHealthScore(
+      updatedStats,
+      BigInt(event.block.timestamp),
+      context
+    ),
+    lastUpdateTime: BigInt(event.block.timestamp),
+    lastBlockNumber: BigInt(event.block.number),
+  };
+  
+  context.AaveProtocolStats.set(finalStats);
+  
+  // Update user position
+  const positionId = `${user}-${reserve}`;
+  let position = await context.AaveUserPosition.get(positionId);
+  
+  if (!position) {
+    position = {
+      id: positionId,
+      user: user,
+      reserve: reserve,
+      reserveSymbol: tokenSymbol,
+      suppliedAmount: amountBigDecimal,
+      borrowedAmount: new BigDecimal(0),
+      supplyCount: 1,
+      withdrawCount: 0,
+      borrowCount: 0,
+      repayCount: 0,
+      firstSupplyTime: BigInt(event.block.timestamp),
+      lastActivityTime: BigInt(event.block.timestamp),
+    };
+  } else {
+    const positionSuppliedAmount = new BigDecimal(position.suppliedAmount.toString());
+    position = {
+      ...position,
+      suppliedAmount: positionSuppliedAmount.plus(amountBigDecimal),
+      supplyCount: position.supplyCount + 1,
+      lastActivityTime: BigInt(event.block.timestamp),
+    };
+  }
+  context.AaveUserPosition.set(position);
+  
+  // Whale tracking
+  await updateMultiProtocolWhale(
+    user,
+    PROTOCOL_AAVE,
+    reserve,
+    amount,
+    "supply",
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  // Cross-protocol flow detection
+  await detectCrossProtocolFlow(
+    transaction,
+    user,
+    PROTOCOL_AAVE,
+    BigInt(event.block.timestamp),
+    context
+  );
+});
+
+/**
+ * Handle Withdraw events
+ */
+AaveV3Pool.Withdraw.handler(async ({ event, context }: any) => {
+  const { reserve, user, to, amount } = event.params;
+  
+  // Update reserve
+  const reserveEntity = await getOrCreateAaveReserve(reserve, context);
+  const amountDecimal = new BigDecimal(amount.toString());
+  const reserveTotalSupplied = new BigDecimal(reserveEntity.totalSupplied.toString());
+  const reserveTotalBorrowed = new BigDecimal(reserveEntity.totalBorrowed.toString());
+  const newTotalSupplied = reserveTotalSupplied.minus(amountDecimal);
+  
+  const updatedReserve = {
+    ...reserveEntity,
+    totalSupplied: newTotalSupplied,
+    utilizationRate: calculateUtilization(
+      newTotalSupplied,
+      reserveTotalBorrowed
+    ),
+    lastUpdateTimestamp: BigInt(event.block.timestamp),
+  };
+  context.AaveReserve.set(updatedReserve);
+  
+  // Create transaction
+  const txId = `${event.transaction.hash}-${event.logIndex}`;
+  const transaction = {
+    id: txId,
+    txType: "withdraw",
+    user: user,
+    onBehalfOf: to,
+    reserve: reserve,
+    reserveSymbol: getTokenSymbol(reserve),
+    amount: amount,
+    collateralAsset: undefined,
+    debtAsset: undefined,
+    liquidator: undefined,
+    debtToCover: undefined,
+    liquidatedCollateralAmount: undefined,
+    interestRateMode: undefined,
+    borrowRate: undefined,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+    gasPrice: BigInt(event.transaction.gasPrice || 0),
+  };
+  context.AaveTransaction.set(transaction);
+  
+  // Update protocol stats
+  const stats = await getOrCreateAaveProtocolStats(
+    BigInt(event.block.timestamp),
+    BigInt(event.block.number),
+    context
+  );
+  
+  const tokenSymbol = getTokenSymbol(reserve);
+  const amountBigDecimal = new BigDecimal(amount.toString());
+  
+  // Convert DB BigDecimal fields to BigDecimal instances
+  const statsTotalSuppliedETH = new BigDecimal(stats.totalSuppliedETH.toString());
+  const statsTotalSuppliedUSDC = new BigDecimal(stats.totalSuppliedUSDC.toString());
+  const statsTotalSuppliedDAI = new BigDecimal(stats.totalSuppliedDAI.toString());
+  const statsTotalSuppliedWBTC = new BigDecimal(stats.totalSuppliedWBTC.toString());
+  const statsTotalBorrowedETH = new BigDecimal(stats.totalBorrowedETH.toString());
+  const statsTotalBorrowedUSDC = new BigDecimal(stats.totalBorrowedUSDC.toString());
+  
+  const updatedStats = {
+    ...stats,
+    totalWithdrawals: stats.totalWithdrawals + BigInt(1),
+    withdrawals24h: stats.withdrawals24h + BigInt(1),
+    totalSuppliedETH: tokenSymbol === "ETH" ? statsTotalSuppliedETH.minus(amountBigDecimal) : statsTotalSuppliedETH,
+    totalSuppliedUSDC: tokenSymbol === "USDC" ? statsTotalSuppliedUSDC.minus(amountBigDecimal) : statsTotalSuppliedUSDC,
+    totalSuppliedDAI: tokenSymbol === "DAI" ? statsTotalSuppliedDAI.minus(amountBigDecimal) : statsTotalSuppliedDAI,
+    totalSuppliedWBTC: tokenSymbol === "WBTC" ? statsTotalSuppliedWBTC.minus(amountBigDecimal) : statsTotalSuppliedWBTC,
+  };
+  
+  // Convert to BigDecimal for arithmetic
+  const updatedTotalSuppliedETH = new BigDecimal(updatedStats.totalSuppliedETH.toString());
+  const updatedTotalSuppliedUSDC = new BigDecimal(updatedStats.totalSuppliedUSDC.toString());
+  const updatedTotalBorrowedETH = new BigDecimal(updatedStats.totalBorrowedETH.toString());
+  const updatedTotalBorrowedUSDC = new BigDecimal(updatedStats.totalBorrowedUSDC.toString());
+  
+  const totalSupplied = updatedTotalSuppliedETH.plus(updatedTotalSuppliedUSDC);
+  const totalBorrowed = updatedTotalBorrowedETH.plus(updatedTotalBorrowedUSDC);
+  
+  const finalStats = {
+    ...updatedStats,
+    globalUtilizationRate: calculateUtilization(totalSupplied, totalBorrowed),
+    healthScore: await calculateAaveHealthScore(
+      updatedStats,
+      BigInt(event.block.timestamp),
+      context
+    ),
+  };
+  
+  context.AaveProtocolStats.set(finalStats);
+  
+  // Update user position
+  const positionId = `${user}-${reserve}`;
+  const position = await context.AaveUserPosition.get(positionId);
+  if (position) {
+    const positionSuppliedAmount = new BigDecimal(position.suppliedAmount.toString());
+    const updatedPosition = {
+      ...position,
+      suppliedAmount: positionSuppliedAmount.minus(amountBigDecimal),
+      withdrawCount: position.withdrawCount + 1,
+      lastActivityTime: BigInt(event.block.timestamp),
+    };
+    context.AaveUserPosition.set(updatedPosition);
+  }
+  
+  // Whale tracking
+  await updateMultiProtocolWhale(
+    user,
+    PROTOCOL_AAVE,
+    reserve,
+    amount,
+    "withdraw",
+    BigInt(event.block.timestamp),
+    context
+  );
+});
+
+/**
+ * Handle Borrow events
+ */
+AaveV3Pool.Borrow.handler(async ({ event, context }: any) => {
+  const { reserve, user, onBehalfOf, amount, interestRateMode, borrowRate, referralCode } = event.params;
+  
+  // Update reserve
+  const reserveEntity = await getOrCreateAaveReserve(reserve, context);
+  const amountBigInt = BigInt(amount);
+  const amountDecimal = new BigDecimal(amount.toString());
+  const reserveTotalSupplied = new BigDecimal(reserveEntity.totalSupplied.toString());
+  const reserveTotalBorrowed = new BigDecimal(reserveEntity.totalBorrowed.toString());
+  const newTotalBorrowed = reserveTotalBorrowed.plus(amountDecimal);
+  
+  const updatedReserve = {
+    ...reserveEntity,
+    totalBorrowed: newTotalBorrowed,
+    borrowCount: reserveEntity.borrowCount + BigInt(1),
+    utilizationRate: calculateUtilization(
+      reserveTotalSupplied,
+      newTotalBorrowed
+    ),
+  };
+  context.AaveReserve.set(updatedReserve);
+  
+  // Create transaction
+  const txId = `${event.transaction.hash}-${event.logIndex}`;
+  const transaction = {
+    id: txId,
+    txType: "borrow",
+    user: user,
+    onBehalfOf: onBehalfOf,
+    reserve: reserve,
+    reserveSymbol: getTokenSymbol(reserve),
+    amount: amount,
+    collateralAsset: undefined,
+    debtAsset: undefined,
+    liquidator: undefined,
+    debtToCover: undefined,
+    liquidatedCollateralAmount: undefined,
+    interestRateMode: Number(interestRateMode),
+    borrowRate: borrowRate,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+    gasPrice: BigInt(event.transaction.gasPrice || 0),
+  };
+  context.AaveTransaction.set(transaction);
+  
+  // Update protocol stats
+  const stats = await getOrCreateAaveProtocolStats(
+    BigInt(event.block.timestamp),
+    BigInt(event.block.number),
+    context
+  );
+  
+  const tokenSymbol = getTokenSymbol(reserve);
+  const amountBigDecimal = new BigDecimal(amount.toString());
+  
+  // Convert DB BigDecimal fields to BigDecimal instances
+  const statsTotalSuppliedETH = new BigDecimal(stats.totalSuppliedETH.toString());
+  const statsTotalSuppliedUSDC = new BigDecimal(stats.totalSuppliedUSDC.toString());
+  const statsTotalBorrowedETH = new BigDecimal(stats.totalBorrowedETH.toString());
+  const statsTotalBorrowedUSDC = new BigDecimal(stats.totalBorrowedUSDC.toString());
+  const statsTotalBorrowedDAI = new BigDecimal(stats.totalBorrowedDAI.toString());
+  const statsTotalBorrowedWBTC = new BigDecimal(stats.totalBorrowedWBTC.toString());
+  
+  const updatedStats = {
+    ...stats,
+    totalBorrows: stats.totalBorrows + BigInt(1),
+    borrows24h: stats.borrows24h + BigInt(1),
+    totalBorrowedETH: tokenSymbol === "ETH" ? statsTotalBorrowedETH.plus(amountBigDecimal) : statsTotalBorrowedETH,
+    totalBorrowedUSDC: tokenSymbol === "USDC" ? statsTotalBorrowedUSDC.plus(amountBigDecimal) : statsTotalBorrowedUSDC,
+    totalBorrowedDAI: tokenSymbol === "DAI" ? statsTotalBorrowedDAI.plus(amountBigDecimal) : statsTotalBorrowedDAI,
+    totalBorrowedWBTC: tokenSymbol === "WBTC" ? statsTotalBorrowedWBTC.plus(amountBigDecimal) : statsTotalBorrowedWBTC,
+  };
+  
+  // Convert to BigDecimal for arithmetic
+  const updatedTotalSuppliedETH = new BigDecimal(updatedStats.totalSuppliedETH.toString());
+  const updatedTotalSuppliedUSDC = new BigDecimal(updatedStats.totalSuppliedUSDC.toString());
+  const updatedTotalBorrowedETH = new BigDecimal(updatedStats.totalBorrowedETH.toString());
+  const updatedTotalBorrowedUSDC = new BigDecimal(updatedStats.totalBorrowedUSDC.toString());
+  
+  const totalSupplied = updatedTotalSuppliedETH.plus(updatedTotalSuppliedUSDC);
+  const totalBorrowed = updatedTotalBorrowedETH.plus(updatedTotalBorrowedUSDC);
+  
+  const finalStats = {
+    ...updatedStats,
+    globalUtilizationRate: calculateUtilization(totalSupplied, totalBorrowed),
+    healthScore: await calculateAaveHealthScore(
+      updatedStats,
+      BigInt(event.block.timestamp),
+      context
+    ),
+  };
+  
+  context.AaveProtocolStats.set(finalStats);
+  
+  // Update user position
+  const positionId = `${user}-${reserve}`;
+  let position = await context.AaveUserPosition.get(positionId);
+  if (!position) {
+    position = {
+      id: positionId,
+      user: user,
+      reserve: reserve,
+      reserveSymbol: tokenSymbol,
+      suppliedAmount: new BigDecimal(0),
+      borrowedAmount: amountBigDecimal,
+      supplyCount: 0,
+      withdrawCount: 0,
+      borrowCount: 1,
+      repayCount: 0,
+      firstSupplyTime: undefined,
+      lastActivityTime: BigInt(event.block.timestamp),
+    };
+  } else {
+    const positionBorrowedAmount = new BigDecimal(position.borrowedAmount.toString());
+    position = {
+      ...position,
+      borrowedAmount: positionBorrowedAmount.plus(amountBigDecimal),
+      borrowCount: position.borrowCount + 1,
+      lastActivityTime: BigInt(event.block.timestamp),
+    };
+  }
+  context.AaveUserPosition.set(position);
+  
+  // Whale tracking
+  await updateMultiProtocolWhale(
+    user,
+    PROTOCOL_AAVE,
+    reserve,
+    amount,
+    "borrow",
+    BigInt(event.block.timestamp),
+    context
+  );
+});
+
+/**
+ * Handle Repay events
+ */
+AaveV3Pool.Repay.handler(async ({ event, context }: any) => {
+  const { reserve, user, repayer, amount, useATokens } = event.params;
+  
+  // Update reserve
+  const reserveEntity = await getOrCreateAaveReserve(reserve, context);
+  const amountDecimal = new BigDecimal(amount.toString());
+  const reserveTotalSupplied = new BigDecimal(reserveEntity.totalSupplied.toString());
+  const reserveTotalBorrowed = new BigDecimal(reserveEntity.totalBorrowed.toString());
+  const newTotalBorrowed = reserveTotalBorrowed.minus(amountDecimal);
+  
+  const updatedReserve = {
+    ...reserveEntity,
+    totalBorrowed: newTotalBorrowed,
+    utilizationRate: calculateUtilization(
+      reserveTotalSupplied,
+      newTotalBorrowed
+    ),
+  };
+  context.AaveReserve.set(updatedReserve);
+  
+  // Create transaction
+  const txId = `${event.transaction.hash}-${event.logIndex}`;
+  const transaction = {
+    id: txId,
+    txType: "repay",
+    user: user,
+    onBehalfOf: repayer,
+    reserve: reserve,
+    reserveSymbol: getTokenSymbol(reserve),
+    amount: amount,
+    collateralAsset: undefined,
+    debtAsset: undefined,
+    liquidator: undefined,
+    debtToCover: undefined,
+    liquidatedCollateralAmount: undefined,
+    interestRateMode: undefined,
+    borrowRate: undefined,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+    gasPrice: BigInt(event.transaction.gasPrice || 0),
+  };
+  context.AaveTransaction.set(transaction);
+  
+  // Update protocol stats
+  const stats = await getOrCreateAaveProtocolStats(
+    BigInt(event.block.timestamp),
+    BigInt(event.block.number),
+    context
+  );
+  
+  const tokenSymbol = getTokenSymbol(reserve);
+  const amountBigDecimal = new BigDecimal(amount.toString());
+  
+  // Convert DB BigDecimal fields to BigDecimal instances
+  const statsTotalSuppliedETH = new BigDecimal(stats.totalSuppliedETH.toString());
+  const statsTotalSuppliedUSDC = new BigDecimal(stats.totalSuppliedUSDC.toString());
+  const statsTotalBorrowedETH = new BigDecimal(stats.totalBorrowedETH.toString());
+  const statsTotalBorrowedUSDC = new BigDecimal(stats.totalBorrowedUSDC.toString());
+  const statsTotalBorrowedDAI = new BigDecimal(stats.totalBorrowedDAI.toString());
+  const statsTotalBorrowedWBTC = new BigDecimal(stats.totalBorrowedWBTC.toString());
+  
+  const updatedStats = {
+    ...stats,
+    totalRepays: stats.totalRepays + BigInt(1),
+    repays24h: stats.repays24h + BigInt(1),
+    totalBorrowedETH: tokenSymbol === "ETH" ? statsTotalBorrowedETH.minus(amountBigDecimal) : statsTotalBorrowedETH,
+    totalBorrowedUSDC: tokenSymbol === "USDC" ? statsTotalBorrowedUSDC.minus(amountBigDecimal) : statsTotalBorrowedUSDC,
+    totalBorrowedDAI: tokenSymbol === "DAI" ? statsTotalBorrowedDAI.minus(amountBigDecimal) : statsTotalBorrowedDAI,
+    totalBorrowedWBTC: tokenSymbol === "WBTC" ? statsTotalBorrowedWBTC.minus(amountBigDecimal) : statsTotalBorrowedWBTC,
+  };
+  
+  // Convert to BigDecimal for arithmetic
+  const updatedTotalSuppliedETH = new BigDecimal(updatedStats.totalSuppliedETH.toString());
+  const updatedTotalSuppliedUSDC = new BigDecimal(updatedStats.totalSuppliedUSDC.toString());
+  const updatedTotalBorrowedETH = new BigDecimal(updatedStats.totalBorrowedETH.toString());
+  const updatedTotalBorrowedUSDC = new BigDecimal(updatedStats.totalBorrowedUSDC.toString());
+  
+  const totalSupplied = updatedTotalSuppliedETH.plus(updatedTotalSuppliedUSDC);
+  const totalBorrowed = updatedTotalBorrowedETH.plus(updatedTotalBorrowedUSDC);
+  
+  const finalStats = {
+    ...updatedStats,
+    globalUtilizationRate: calculateUtilization(totalSupplied, totalBorrowed),
+  };
+  
+  context.AaveProtocolStats.set(finalStats);
+  
+  // Update user position
+  const positionId = `${user}-${reserve}`;
+  const position = await context.AaveUserPosition.get(positionId);
+  if (position) {
+    const positionBorrowedAmount = new BigDecimal(position.borrowedAmount.toString());
+    const updatedPosition = {
+      ...position,
+      borrowedAmount: positionBorrowedAmount.minus(amountBigDecimal),
+      repayCount: position.repayCount + 1,
+      lastActivityTime: BigInt(event.block.timestamp),
+    };
+    context.AaveUserPosition.set(updatedPosition);
+  }
+});
+
+/**
+ * Handle Liquidation events
+ */
+AaveV3Pool.LiquidationCall.handler(async ({ event, context }: any) => {
+  const { 
+    collateralAsset, 
+    debtAsset, 
+    user, 
+    debtToCover, 
+    liquidatedCollateralAmount, 
+    liquidator, 
+    receiveAToken 
+  } = event.params;
+  
+  // Update reserves
+  const debtReserve = await getOrCreateAaveReserve(debtAsset, context);
+  const debtTotalBorrowed = new BigDecimal(debtReserve.totalBorrowed.toString());
+  const updatedDebtReserve = {
+    ...debtReserve,
+    totalBorrowed: debtTotalBorrowed.minus(new BigDecimal(debtToCover.toString())),
+    liquidationCount: debtReserve.liquidationCount + BigInt(1),
+  };
+  context.AaveReserve.set(updatedDebtReserve);
+  
+  const collateralReserve = await getOrCreateAaveReserve(collateralAsset, context);
+  const collateralTotalSupplied = new BigDecimal(collateralReserve.totalSupplied.toString());
+  const updatedCollateralReserve = {
+    ...collateralReserve,
+    totalSupplied: collateralTotalSupplied.minus(new BigDecimal(liquidatedCollateralAmount.toString())),
+    liquidationCount: collateralReserve.liquidationCount + BigInt(1),
+  };
+  context.AaveReserve.set(updatedCollateralReserve);
+  
+  // Create transaction
+  const txId = `${event.transaction.hash}-${event.logIndex}`;
+  const transaction = {
+    id: txId,
+    txType: "liquidation",
+    user: user,
+    onBehalfOf: undefined,
+    reserve: debtAsset,
+    reserveSymbol: getTokenSymbol(debtAsset),
+    amount: debtToCover,
+    collateralAsset: collateralAsset,
+    debtAsset: debtAsset,
+    liquidator: liquidator,
+    debtToCover: debtToCover,
+    liquidatedCollateralAmount: liquidatedCollateralAmount,
+    interestRateMode: undefined,
+    borrowRate: undefined,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    transactionHash: event.transaction.hash,
+    logIndex: event.logIndex,
+    gasPrice: BigInt(event.transaction.gasPrice || 0),
+  };
+  context.AaveTransaction.set(transaction);
+  
+  // Update protocol stats
+  const stats = await getOrCreateAaveProtocolStats(
+    BigInt(event.block.timestamp),
+    BigInt(event.block.number),
+    context
+  );
+  
+  const updatedStats = {
+    ...stats,
+    totalLiquidations: stats.totalLiquidations + BigInt(1),
+    liquidations24h: stats.liquidations24h + BigInt(1),
+    // Liquidations are health warning - reduce health score
+    healthScore: Math.max(0, stats.healthScore - 5),
+  };
+  
+  context.AaveProtocolStats.set(updatedStats);
+});
+
+/**
+ * Handle ReserveDataUpdated - Updates interest rates
+ */
+AaveV3Pool.ReserveDataUpdated.handler(async ({ event, context }: any) => {
+  const { 
+    reserve, 
+    liquidityRate, 
+    stableBorrowRate, 
+    variableBorrowRate, 
+    liquidityIndex, 
+    variableBorrowIndex 
+  } = event.params;
+  
+  const reserveEntity = await getOrCreateAaveReserve(reserve, context);
+  const updatedReserve = {
+    ...reserveEntity,
+    liquidityRate: liquidityRate,
+    stableBorrowRate: stableBorrowRate,
+    variableBorrowRate: variableBorrowRate,
+    liquidityIndex: liquidityIndex,
+    variableBorrowIndex: variableBorrowIndex,
+    lastUpdateTimestamp: BigInt(event.block.timestamp),
+  };
+  
+  context.AaveReserve.set(updatedReserve);
 });

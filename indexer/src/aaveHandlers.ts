@@ -283,9 +283,9 @@ AaveV3Pool.Supply.handler(async ({ event, context }: any) => {
   
   // Cross-protocol flow detection
   await detectCrossProtocolFlow(
+    transaction,
     user,
     PROTOCOL_AAVE,
-    amount,
     BigInt(event.block.timestamp),
     context
   );
@@ -541,6 +541,14 @@ AaveV3Pool.Borrow.handler(async ({ event, context }: any) => {
     };
   }
   context.AaveUserPosition.set(position);
+  
+  await detectCrossProtocolFlow(
+    transaction,
+    user,
+    PROTOCOL_AAVE,
+    BigInt(event.block.timestamp),
+    context
+  );
   
   // Whale tracking
   await updateMultiProtocolWhale(

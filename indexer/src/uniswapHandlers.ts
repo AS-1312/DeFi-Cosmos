@@ -15,11 +15,13 @@ import {
   getTokenSymbol,
   getTokenDecimals,
   isWhaleTransaction,
+  updateMultiProtocolWhale,
+  detectCrossProtocolFlow,
 } from "./common";
 
 // ============ HELPER FUNCTIONS ============
 
-async function getOrCreateProtocolStats(
+async function getOrCreateUniswapStats(
   context: any,
   timestamp: bigint,
   blockNumber: bigint
@@ -58,7 +60,7 @@ async function updateProtocolMetrics(
   blockNumber: bigint,
   gasPrice: bigint
 ): Promise<void> {
-  const stats = await getOrCreateProtocolStats(context, timestamp, blockNumber);
+  const stats = await getOrCreateUniswapStats(context, timestamp, blockNumber);
   
   // Update gas price (rolling average)
   const newAvgGasPrice = stats.avgGasPrice === BigInt(0) 
@@ -136,7 +138,7 @@ PoolManager.Initialize.handler(async ({ event, context }: any) => {
   context.Pool.set(pool);
   
   // Update protocol stats
-  const stats = await getOrCreateProtocolStats(
+  const stats = await getOrCreateUniswapStats(
     context,
     BigInt(event.block.timestamp),
     BigInt(event.block.number)
@@ -225,7 +227,7 @@ PoolManager.Swap.handler(async ({ event, context }: any) => {
   context.Transaction.set(transaction);
   
   // Update protocol stats
-  const stats = await getOrCreateProtocolStats(
+  const stats = await getOrCreateUniswapStats(
     context,
     BigInt(event.block.timestamp),
     BigInt(event.block.number)
@@ -410,7 +412,7 @@ PoolManager.ModifyLiquidity.handler(async ({ event, context }: any) => {
   context.Transaction.set(transaction);
   
   // Update protocol stats
-  const stats = await getOrCreateProtocolStats(
+  const stats = await getOrCreateUniswapStats(
     context,
     BigInt(event.block.timestamp),
     BigInt(event.block.number)
@@ -464,5 +466,26 @@ PoolManager.ModifyLiquidity.handler(async ({ event, context }: any) => {
     BigInt(event.block.timestamp),
     BigInt(event.block.number),
     BigInt(event.transaction.gasPrice || 0)
+  );
+
+  if (isAddingLiquidity) {
+    await detectCrossProtocolFlow(
+      transaction,
+      sender,
+      PROTOCOL_UNISWAP,
+      BigInt(event.block.timestamp),
+      context
+    );
+  }
+  
+  // Update whale tracking
+  await updateMultiProtocolWhale(
+    sender,
+    PROTOCOL_UNISWAP,
+    pool.currency0,
+    liquidityDelta,
+    txType,
+    BigInt(event.block.timestamp),
+    context
   );
 });

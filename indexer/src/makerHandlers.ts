@@ -10,6 +10,9 @@ import {
 import {
   PROTOCOL_MAKER,
   ilkToString,
+  WETH_ADDRESS,
+  updateMultiProtocolWhale,
+  detectCrossProtocolFlow,
 } from "./common";
 
 // ============ HELPER FUNCTIONS ============
@@ -89,7 +92,7 @@ MakerCDPManager.NewCdp.handler(async ({ event, context }: any) => {
   
   // Create transaction
   const txId = `${event.transaction.hash}-${event.logIndex}`;
-  context.MakerTransaction.set({
+  const transaction: MakerTransaction = {
     id: txId,
     txType: "vault_open",
     vaultId: vaultId,
@@ -105,7 +108,26 @@ MakerCDPManager.NewCdp.handler(async ({ event, context }: any) => {
     transactionHash: event.transaction.hash,
     logIndex: Number(event.logIndex),
     gasPrice: BigInt(event.transaction.gasPrice || 0),
-  });
+  };
+  context.MakerTransaction.set(transaction);
+
+  await detectCrossProtocolFlow(
+    transaction,
+    own,
+    PROTOCOL_MAKER,
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  await updateMultiProtocolWhale(
+    own,
+    PROTOCOL_MAKER,
+    WETH_ADDRESS,
+    BigInt(0), // No amount at creation
+    "vault_open",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**
@@ -125,14 +147,14 @@ MakerVat.LogNote.handler(async ({ event, context }: any) => {
   
   // Create transaction
   const txId = `${event.transaction.hash}-${event.logIndex}`;
-  context.MakerTransaction.set({
+  const transaction: MakerTransaction = {
     id: txId,
     txType: "vault_modify",
-    vaultId: undefined, // Would need CDP ID mapping
+    vaultId: undefined,
     owner: usr,
     ilk: ilk,
-    collateralDelta: undefined, // Would decode from data
-    debtDelta: undefined, // Would decode from data
+    collateralDelta: undefined,
+    debtDelta: undefined,
     liquidator: undefined,
     collateralLiquidated: undefined,
     debtCovered: undefined,
@@ -141,7 +163,8 @@ MakerVat.LogNote.handler(async ({ event, context }: any) => {
     transactionHash: event.transaction.hash,
     logIndex: Number(event.logIndex),
     gasPrice: BigInt(event.transaction.gasPrice || 0),
-  });
+  };
+  context.MakerTransaction.set(transaction);
   
   // Update stats
   const stats = await getOrCreateMakerStats(
@@ -155,6 +178,24 @@ MakerVat.LogNote.handler(async ({ event, context }: any) => {
     totalVaultModifications: stats.totalVaultModifications + BigInt(1),
     vaultModifications24h: stats.vaultModifications24h + BigInt(1),
   });
+
+  await detectCrossProtocolFlow(
+    transaction,
+    usr,
+    PROTOCOL_MAKER,
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  await updateMultiProtocolWhale(
+    usr,
+    PROTOCOL_MAKER,
+    WETH_ADDRESS,
+    BigInt(0), // Would need to decode data for actual amount
+    "vault_modify",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**

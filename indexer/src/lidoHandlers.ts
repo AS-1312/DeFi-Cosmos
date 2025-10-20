@@ -10,6 +10,8 @@ import {
   WETH_ADDRESS,
   STETH_ADDRESS,
   isWhaleTransaction,
+  updateMultiProtocolWhale,
+  detectCrossProtocolFlow,
 } from "./common";
 
 // ============ HELPER FUNCTIONS ============
@@ -130,6 +132,25 @@ Lido.Submitted.handler(async ({ event, context }: any) => {
     };
   }
   context.LidoStaker.set(staker);
+
+  await detectCrossProtocolFlow(
+    transaction,
+    sender,
+    PROTOCOL_LIDO,
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  // Whale tracking
+  await updateMultiProtocolWhale(
+    sender,
+    PROTOCOL_LIDO,
+    WETH_ADDRESS,
+    amount,
+    "stake",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**

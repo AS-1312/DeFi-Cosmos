@@ -322,18 +322,18 @@ type AaveUserPosition @entity {
   lastActivityTime: BigInt!
 }
 
-# ============ CROSS-PROTOCOL ENTITIES ============
+# ============ CROSS-PROTOCOL CAPITAL FLOWS ============
 
 type CrossProtocolFlow @entity {
-  id: ID! # flow-id
+  id: ID! # flowId
   wallet: String!
   
-  # From (can be Uniswap or Aave)
-  fromProtocol: String! # "uniswap-v4" | "aave-v3"
+  # From protocol
+  fromProtocol: String! # "uniswap-v4" | "aave-v3" | "lido" | "curve" | "maker"
   fromPoolOrReserve: String!
   
-  # To (can be Uniswap or Aave)
-  toProtocol: String! # "uniswap-v4" | "aave-v3"
+  # To protocol
+  toProtocol: String! # "uniswap-v4" | "aave-v3" | "lido" | "curve" | "maker"
   toPoolOrReserve: String!
   
   # Asset moved
@@ -343,13 +343,13 @@ type CrossProtocolFlow @entity {
   
   timestamp: BigInt!
   timeDelta: Int! # Seconds between transactions
-  flowType: String! # "liquidity_rebalancing" | "yield_farming" | "arbitrage"
+  flowType: String! # "arbitrage" | "yield_farming" | "rebalancing" | "liquidity_rebalancing"
   
   fromTxHash: String!
   toTxHash: String!
 }
 
-# ============ ENHANCED WHALE ACTIVITY (Multi-Protocol) ============
+# ============ MULTI-PROTOCOL WHALE TRACKING ============
 
 type MultiProtocolWhale @entity {
   id: ID! # wallet address
@@ -368,8 +368,22 @@ type MultiProtocolWhale @entity {
   aaveSupplyCount: Int!
   aaveBorrowCount: Int!
   
+  # Lido activity
+  lidoStakedETH: BigDecimal!
+  lidoStakeCount: Int!
+  
+  # Curve activity
+  curveVolumeETH: BigDecimal!
+  curveVolumeUSDC: BigDecimal!
+  curveSwapCount: Int!
+  
+  # Maker activity
+  makerCollateralETH: BigDecimal!
+  makerDebtDAI: BigDecimal!
+  makerVaultCount: Int!
+  
   # Cross-protocol
-  protocolsUsed: [String!]! # ["uniswap-v4", "aave-v3"]
+  protocolsUsed: [String!]!
   crossProtocolFlows: Int!
   
   # Overall

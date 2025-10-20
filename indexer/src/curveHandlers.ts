@@ -18,7 +18,8 @@ import {
   USDT_ADDRESS,
   DAI_ADDRESS,
   STETH_ADDRESS,
-  isWhaleTransaction,
+  updateMultiProtocolWhale,
+  detectCrossProtocolFlow,
 } from "./common";
 
 // ============ HELPER FUNCTIONS ============
@@ -177,6 +178,17 @@ Curve3Pool.TokenExchange.handler(async ({ event, context } : any) => {
   };
   
   context.CurveProtocolStats.set(updatedStats);
+
+  // Whale tracking
+  await updateMultiProtocolWhale(
+    buyer,
+    PROTOCOL_CURVE,
+    USDC_ADDRESS,
+    tokens_sold,
+    "swap",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**
@@ -207,7 +219,7 @@ Curve3Pool.AddLiquidity.handler(async ({ event, context }: any) => {
   
   // Create transaction
   const txId = `${event.transaction.hash}-${event.logIndex}`;
-  context.CurveTransaction.set({
+  const transaction: CurveTransaction = {
     id: txId,
     pool_id: pool.id,
     poolId: CURVE_3POOL,
@@ -224,7 +236,8 @@ Curve3Pool.AddLiquidity.handler(async ({ event, context }: any) => {
     transactionHash: event.transaction.hash,
     logIndex: Number(event.logIndex),
     gasPrice: BigInt(event.transaction.gasPrice || 0),
-  });
+  };
+  context.CurveTransaction.set(transaction);
   
   // Update stats
   const stats = await getOrCreateCurveStats(
@@ -238,6 +251,26 @@ Curve3Pool.AddLiquidity.handler(async ({ event, context }: any) => {
     totalLiquidityAdds: stats.totalLiquidityAdds + BigInt(1),
     liquidityAdds24h: stats.liquidityAdds24h + BigInt(1),
   });
+
+  await detectCrossProtocolFlow(
+    transaction,
+    provider,
+    PROTOCOL_CURVE,
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  // Update whale tracking if significant
+  const totalAmount = token_amounts.reduce((sum: bigint, amt: any) => sum + amt, BigInt(0));
+  await updateMultiProtocolWhale(
+    provider,
+    PROTOCOL_CURVE,
+    USDC_ADDRESS,
+    totalAmount,
+    "add_liquidity",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**
@@ -433,6 +466,17 @@ CurveStETHPool.TokenExchange.handler(async ({ event, context }: any) => {
     volumeTotalETH: currentETH.plus(tokensSoldDecimal),
     volume24hETH: current24hETH.plus(tokensSoldDecimal),
   });
+
+  // Whale tracking
+  await updateMultiProtocolWhale(
+    buyer,
+    PROTOCOL_CURVE,
+    WETH_ADDRESS,
+    tokens_sold,
+    "swap",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**
@@ -461,7 +505,7 @@ CurveStETHPool.AddLiquidity.handler(async ({ event, context }: any) => {
   });
   
   const txId = `${event.transaction.hash}-${event.logIndex}`;
-  context.CurveTransaction.set({
+  const transaction: CurveTransaction = {
     id: txId,
     pool_id: pool.id,
     poolId: CURVE_STETH_POOL,
@@ -478,7 +522,8 @@ CurveStETHPool.AddLiquidity.handler(async ({ event, context }: any) => {
     transactionHash: event.transaction.hash,
     logIndex: Number(event.logIndex),
     gasPrice: BigInt(event.transaction.gasPrice || 0),
-  });
+  };
+  context.CurveTransaction.set(transaction);
   
   const stats = await getOrCreateCurveStats(
     BigInt(event.block.timestamp),
@@ -491,6 +536,25 @@ CurveStETHPool.AddLiquidity.handler(async ({ event, context }: any) => {
     totalLiquidityAdds: stats.totalLiquidityAdds + BigInt(1),
     liquidityAdds24h: stats.liquidityAdds24h + BigInt(1),
   });
+
+  await detectCrossProtocolFlow(
+    transaction,
+    provider,
+    PROTOCOL_CURVE,
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  const totalAmount = token_amounts.reduce((sum: bigint, amt: any) => sum + amt, BigInt(0));
+  await updateMultiProtocolWhale(
+    provider,
+    PROTOCOL_CURVE,
+    WETH_ADDRESS,
+    totalAmount,
+    "add_liquidity",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**
@@ -700,7 +764,7 @@ CurveTricryptoPool.AddLiquidity.handler(async ({ event, context }: any) => {
   });
   
   const txId = `${event.transaction.hash}-${event.logIndex}`;
-  context.CurveTransaction.set({
+  const transaction: CurveTransaction = {
     id: txId,
     pool_id: pool.id,
     poolId: CURVE_TRICRYPTO,
@@ -717,7 +781,8 @@ CurveTricryptoPool.AddLiquidity.handler(async ({ event, context }: any) => {
     transactionHash: event.transaction.hash,
     logIndex: Number(event.logIndex),
     gasPrice: BigInt(event.transaction.gasPrice || 0),
-  });
+  };
+  context.CurveTransaction.set(transaction);
   
   const stats = await getOrCreateCurveStats(
     BigInt(event.block.timestamp),
@@ -730,6 +795,25 @@ CurveTricryptoPool.AddLiquidity.handler(async ({ event, context }: any) => {
     totalLiquidityAdds: stats.totalLiquidityAdds + BigInt(1),
     liquidityAdds24h: stats.liquidityAdds24h + BigInt(1),
   });
+
+  await detectCrossProtocolFlow(
+    transaction,
+    provider,
+    PROTOCOL_CURVE,
+    BigInt(event.block.timestamp),
+    context
+  );
+  
+  const totalAmount = token_amounts.reduce((sum: bigint, amt: any) => sum + amt, BigInt(0));
+  await updateMultiProtocolWhale(
+    provider,
+    PROTOCOL_CURVE,
+    USDT_ADDRESS,
+    totalAmount,
+    "add_liquidity",
+    BigInt(event.block.timestamp),
+    context
+  );
 });
 
 /**

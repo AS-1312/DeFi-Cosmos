@@ -112,21 +112,6 @@ const protocols: Protocol[] = [
       "Diversify across other protocols",
     ],
   },
-  {
-    name: "Maker",
-    color: "#1aab9b",
-    healthScore: 78,
-    warnings: [
-      {
-        type: "tvl",
-        message: "↓5% in 24h",
-        severity: "low",
-        explanation: "Minor TVL decrease, likely due to normal market fluctuations.",
-      },
-    ],
-    healthTrend: [80, 79, 79, 78, 78, 78],
-    recommendations: [],
-  },
 ]
 
 const warningIcons = {

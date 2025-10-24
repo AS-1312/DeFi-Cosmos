@@ -9,7 +9,6 @@ const tickerItems = [
   { icon: "⚠️", label: "Aave Health", value: "88/100", alert: false },
   { icon: "🌊", label: "Curve", value: "8.1M DAI + 5.2M USDC" },
   { icon: "🔷", label: "Lido", value: "142K ETH staked" },
-  { icon: "🏛️", label: "Maker", value: "4.8M DAI" },
   { icon: "⚡", label: "Transactions", value: "1.2M/day" },
   { icon: "🔥", label: "TPS", value: "45.2" },
   { icon: "💧", label: "Liquidations", value: "12 (24h)" },

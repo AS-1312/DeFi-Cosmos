@@ -38,7 +38,6 @@
   --aave: #8b5cf6;
   --curve: #3b82f6;
   --lido: #f97316;
-  --maker: #1aab9b;
 
   /* Health Indicators */
   --health-green: #10b981;
@@ -114,7 +113,6 @@
   --color-aave: var(--aave);
   --color-curve: var(--curve);
   --color-lido: var(--lido);
-  --color-maker: var(--maker);
 
   /* Health Indicators */
   --color-health-green: var(--health-green);
@@ -270,10 +268,6 @@
 
   .protocol-lido {
     color: var(--lido);
-  }
-
-  .protocol-maker {
-    color: var(--maker);
   }
 
   /* Health Indicator Classes */

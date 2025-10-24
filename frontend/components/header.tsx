@@ -46,7 +46,7 @@ export function Header() {
             {/* Active Protocols */}
             <div className="glass-card px-4 py-2">
               <div className="text-xs text-white/60">Protocols</div>
-              <div className="text-sm font-bold text-white">5 Active</div>
+              <div className="text-sm font-bold text-white">4 Active</div>
             </div>
           </div>
 
@@ -66,12 +66,6 @@ export function Header() {
               title={`Switch to ${viewMode === "3d" ? "2D" : "3D"} view`}
             >
               {viewMode === "3d" ? <Box className="w-5 h-5" /> : <Grid3x3 className="w-5 h-5" />}
-            </Button>
-
-            {/* Connect Wallet Button - icon only on mobile */}
-            <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-full px-3 md:px-6 shadow-lg shadow-purple-500/50 transition-all hover:shadow-purple-500/70 h-9 md:h-10">
-              <Wallet className="w-4 h-4 md:mr-2" />
-              <span className="hidden md:inline">Connect Wallet</span>
             </Button>
 
             {/* Settings - hidden on mobile, replaced by hamburger */}

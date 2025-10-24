@@ -125,7 +125,6 @@ export function WelcomeScreen() {
               <Zap className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">Your Portfolio, Highlighted</h3>
-            <p className="text-white/70 text-sm">Connect wallet for personalized insights</p>
           </div>
         </div>
 
@@ -137,14 +136,6 @@ export function WelcomeScreen() {
           >
             Explore Dashboard
           </Button>
-          <Button
-            onClick={handleExplore}
-            variant="outline"
-            className="px-6 py-3 border-white/20 hover:bg-white/10 text-white rounded-full bg-transparent"
-          >
-            Connect Wallet
-          </Button>
-          <p className="text-sm text-white/50">No wallet? Explore in demo mode</p>
         </div>
 
         {/* Stats Ticker */}

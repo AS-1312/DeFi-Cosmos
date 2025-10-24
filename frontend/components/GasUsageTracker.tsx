@@ -64,18 +64,6 @@ const mockGasData: GasUsageData[] = [
       gas: 100000 + Math.random() * 80000,
     })),
   },
-  {
-    protocol: "Maker",
-    color: "#1aab9b",
-    avgGasPerTx: 280000,
-    totalGasUsed24h: 896000000,
-    txCount24h: 3200,
-    trend: 2.8,
-    chartData: Array.from({ length: 24 }, (_, i) => ({
-      time: `${i}h`,
-      gas: 220000 + Math.random() * 140000,
-    })),
-  },
 ]
 
 export function GasUsageTracker() {

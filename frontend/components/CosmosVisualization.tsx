@@ -31,7 +31,7 @@ const protocols = [
     tvl: "8.1M DAI",
     health: 78,
     transactions: "3.1M",
-    angle: 90,
+    angle: 120,
   },
   {
     id: "lido",
@@ -40,15 +40,6 @@ const protocols = [
     tvl: "142K ETH",
     health: 95,
     transactions: "892K",
-    angle: 150,
-  },
-  {
-    id: "maker",
-    name: "Maker",
-    color: "#1aab9b",
-    tvl: "4.8M DAI",
-    health: 85,
-    transactions: "1.2M",
     angle: 210,
   },
 ]
@@ -58,15 +49,14 @@ const flows = [
   { from: "uniswap", to: "aave", volume: 2.4, type: "yield" },
   { from: "aave", to: "curve", volume: 1.8, type: "arbitrage" },
   { from: "curve", to: "lido", volume: 3.2, type: "rebalancing" },
-  { from: "lido", to: "maker", volume: 1.5, type: "yield" },
-  { from: "maker", to: "uniswap", volume: 2.1, type: "arbitrage" },
+  { from: "lido", to: "uniswap", volume: 2.1, type: "arbitrage" },
 ]
 
 // Whale comets
 const whales = [
   { id: 1, from: "uniswap", to: "aave", progress: 0.3, amount: "85 ETH", address: "0x742d...35Bd" },
   { id: 2, from: "curve", to: "lido", progress: 0.6, amount: "420K USDC", address: "0x8f3a...92Cd" },
-  { id: 3, from: "maker", to: "uniswap", progress: 0.8, amount: "120 ETH", address: "0x1a2b...47Ef" },
+  { id: 3, from: "lido", to: "uniswap", progress: 0.8, amount: "120 ETH", address: "0x1a2b...47Ef" },
 ]
 
 export function CosmosVisualization() {

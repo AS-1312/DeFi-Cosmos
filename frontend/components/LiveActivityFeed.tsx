@@ -5,7 +5,7 @@ import { ArrowDownUp, TrendingUp, TrendingDown, Coins, ExternalLink } from "luci
 import { Button } from "@/components/ui/button"
 
 type TransactionType = "swap" | "deposit" | "withdraw" | "borrow"
-type Protocol = "uniswap" | "aave" | "curve" | "lido" | "maker"
+type Protocol = "uniswap" | "aave" | "curve" | "lido"
 
 interface Transaction {
   id: string
@@ -23,7 +23,6 @@ const protocolColors: Record<Protocol, string> = {
   aave: "bg-[#8b5cf6] text-white",
   curve: "bg-[#3b82f6] text-white",
   lido: "bg-[#f97316] text-white",
-  maker: "bg-[#1aab9b] text-white",
 }
 
 const typeIcons: Record<TransactionType, { icon: typeof ArrowDownUp; color: string }> = {
@@ -35,7 +34,7 @@ const typeIcons: Record<TransactionType, { icon: typeof ArrowDownUp; color: stri
 
 // Generate mock transactions
 const generateMockTransaction = (): Transaction => {
-  const protocols: Protocol[] = ["uniswap", "aave", "curve", "lido", "maker"]
+  const protocols: Protocol[] = ["uniswap", "aave", "curve", "lido"]
   const types: TransactionType[] = ["swap", "deposit", "withdraw", "borrow"]
   const protocol = protocols[Math.floor(Math.random() * protocols.length)]
   const type = types[Math.floor(Math.random() * types.length)]

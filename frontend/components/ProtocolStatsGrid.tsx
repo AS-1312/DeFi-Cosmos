@@ -105,28 +105,6 @@ const protocols: Protocol[] = [
       { value: 31 },
     ],
   },
-  {
-    id: "maker",
-    name: "Maker",
-    color: "#1aab9b",
-    tvl: "4.8M DAI",
-    change24h: -4.3,
-    volume24h: "1.2M DAI",
-    transactions24h: "3.2K",
-    utilization: "89%",
-    tps: 12,
-    health: 85,
-    sparklineData: [
-      { value: 22 },
-      { value: 24 },
-      { value: 21 },
-      { value: 20 },
-      { value: 19 },
-      { value: 18 },
-      { value: 17 },
-      { value: 16 },
-    ],
-  },
 ]
 
 const getHealthColor = (health: number) => {

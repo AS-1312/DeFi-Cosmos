@@ -56,18 +56,6 @@ const mockLiquidations: LiquidationEvent[] = [
   },
   {
     id: "4",
-    protocol: "Maker",
-    protocolColor: "#1aab9b",
-    wallet: "0x5b2a...4e1c",
-    collateral: "150 ETH",
-    debt: "215,000 DAI",
-    liquidatedAmount: "58 ETH",
-    timestamp: "1h ago",
-    txHash: "0xjkl012",
-    healthFactorBefore: 0.85,
-  },
-  {
-    id: "5",
     protocol: "Compound",
     protocolColor: "#00d395",
     wallet: "0x9c7d...2f3a",
@@ -81,7 +69,7 @@ const mockLiquidations: LiquidationEvent[] = [
 ]
 
 export function LiquidationTracker() {
-  const [filter, setFilter] = useState<"all" | "aave" | "compound" | "maker">("all")
+  const [filter, setFilter] = useState<"all" | "aave" | "compound">("all")
 
   const filteredLiquidations = mockLiquidations.filter((liq) => {
     if (filter === "all") return true
@@ -141,14 +129,6 @@ export function LiquidationTracker() {
           className={filter === "compound" ? "bg-green-500/20 border-green-500/50 text-green-300" : ""}
         >
           Compound
-        </Button>
-        <Button
-          variant={filter === "maker" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setFilter("maker")}
-          className={filter === "maker" ? "bg-teal-500/20 border-teal-500/50 text-teal-300" : ""}
-        >
-          Maker
         </Button>
       </div>
 

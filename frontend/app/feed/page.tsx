@@ -62,7 +62,7 @@ export default function FeedPage() {
                 { type: "Large", amount: "$1.8M", protocol: "Curve", action: "Swap" },
                 { type: "Whale", amount: "$3.1M", protocol: "Uniswap", action: "Withdraw" },
                 { type: "Large", amount: "$1.2M", protocol: "Lido", action: "Stake" },
-                { type: "Unusual", amount: "$890K", protocol: "Maker", action: "Borrow" },
+                { type: "Unusual", amount: "$890K", protocol: "Aave", action: "Borrow" },
               ].map((activity, i) => (
                 <div
                   key={i}

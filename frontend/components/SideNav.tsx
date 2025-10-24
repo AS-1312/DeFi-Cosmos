@@ -5,11 +5,7 @@ import Link from "next/link"
 import {
   Globe,
   BarChart3,
-  TrendingUp,
-  Wallet,
   Activity,
-  Clock,
-  Fish,
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
@@ -20,45 +16,21 @@ const navItems = [
     href: "/",
     icon: Globe,
     label: "Overview",
-    description: "Cosmos view",
+    description: "Protocol Observatory",
   },
   {
     href: "/protocols",
     icon: BarChart3,
-    label: "Protocols",
-    badge: "5",
-  },
-  {
-    href: "/flows",
-    icon: TrendingUp,
-    label: "Capital Flows",
-    badge: "Live",
-    badgeType: "pulse" as const,
-  },
-  {
-    href: "/whales",
-    icon: Fish,
-    label: "Whale Tracker",
-    badge: "12",
-  },
-  {
-    href: "/portfolio",
-    icon: Wallet,
-    label: "My Portfolio",
-    badge: "Connect",
-    badgeType: "connect" as const,
+    label: "Protocol Stats",
+    badge: "4",
+    description: "Deep dive analytics",
   },
   {
     href: "/feed",
     icon: Activity,
     label: "Live Activity",
     badgeType: "pulse" as const,
-  },
-  {
-    href: "/time-machine",
-    icon: Clock,
-    label: "Time Machine",
-    description: "Historical playback",
+    description: "Real-time transactions",
   },
 ]
 
@@ -116,7 +88,7 @@ export function SideNav() {
 
       {/* Health Status Summary */}
       <div className="absolute bottom-4 left-4 right-4 p-4 rounded-lg bg-white/5 border border-white/10">
-        <div className="text-xs font-medium text-white/60 mb-2">Health Status</div>
+        <div className="text-xs font-medium text-white/60 mb-2">Protocol Health</div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 text-xs">
             <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
@@ -124,14 +96,13 @@ export function SideNav() {
           </div>
           <div className="flex items-center gap-2 text-xs">
             <AlertTriangle className="w-3.5 h-3.5 text-yellow-400" />
-            <span className="text-white/80">1 Caution</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <AlertCircle className="w-3.5 h-3.5 text-red-400" />
-            <span className="text-white/80">1 Alert</span>
+            <span className="text-white/80">1 Warning</span>
           </div>
         </div>
-        <div className="mt-3 pt-3 border-t border-white/10 text-xs text-white/40">v1.0 • Built with Envio</div>
+        <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="text-xs text-white/40">4 Protocols Monitored</div>
+          <div className="text-xs text-white/40 mt-1">Powered by Envio</div>
+        </div>
       </div>
     </aside>
   )

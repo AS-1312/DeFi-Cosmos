@@ -77,7 +77,6 @@ export default function ProtocolsPage() {
             { name: "Aave", value: 18.2, color: "bg-[#8b5cf6]", percentage: 74 },
             { name: "Curve", value: 15.8, color: "bg-[#3b82f6]", percentage: 64 },
             { name: "Lido", value: 22.1, color: "bg-[#f97316]", percentage: 90 },
-            { name: "Maker", value: 8.6, color: "bg-[#1aab9b]", percentage: 35 },
           ].map((protocol) => (
             <div key={protocol.name} className="space-y-2">
               <div className="flex items-center justify-between text-sm">

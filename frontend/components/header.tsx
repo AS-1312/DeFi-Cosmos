@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Settings, Wallet, Box, Grid3x3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { MobileNav } from "@/components/MobileNav"
+import { MobileNav } from "./MobileNav"
 import { useProtocolStats } from "@/hooks/useProtocolStats"
 
 export function Header() {

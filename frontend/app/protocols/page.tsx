@@ -1,7 +1,7 @@
 "use client"
 
-import { ProtocolStatsGrid } from "@/components/ProtocolStatsGrid"
-import { ProtocolHealthPanel } from "@/components/ProtocolHealthPanel"
+import { ProtocolStatsGrid } from "../../components/ProtocolStatsGrid"
+import { ProtocolHealthPanel } from "../../components/ProtocolHealthPanel"
 import { BarChart3, TrendingUp, Activity, Zap } from "lucide-react"
 import { useState } from "react"
 import { useProtocolStats } from "@/hooks/useProtocolStats"

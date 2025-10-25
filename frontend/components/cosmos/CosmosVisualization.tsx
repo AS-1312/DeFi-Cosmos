@@ -15,6 +15,7 @@ interface Protocol {
   color: string;
   icon: string;
   healthScore?: number;
+  lastBlockNumber?: string;
 }
 
 interface CosmosVisualizationProps {
@@ -30,6 +31,26 @@ const ORBITAL_CONFIG = {
 };
 
 export function CosmosVisualization({ protocols }: CosmosVisualizationProps) {
+  // Calculate aggregate metrics for Ethereum (Sun)
+  const totalTvl = protocols.reduce((sum, p) => {
+    const tvl = BigInt(p.tvl || '0');
+    return sum + tvl;
+  }, BigInt(0)).toString();
+
+  const totalTransactions = protocols.reduce((sum, p) => {
+    return sum + Number(p.transactionCount24h || 0);
+  }, 0);
+
+  const latestBlock = protocols.reduce((max, p) => {
+    if (p.lastBlockNumber) {
+      const blockNum = parseInt(p.lastBlockNumber);
+      return blockNum > max ? blockNum : max;
+    }
+    return max;
+  }, 0);
+
+  const activeProtocols = protocols.filter(p => p.tvl !== '0').length;
+
   return (
     <div className="w-full h-full">
       <Canvas
@@ -66,7 +87,12 @@ export function CosmosVisualization({ protocols }: CosmosVisualizationProps) {
         </Suspense>
 
         {/* Central Sun (Ethereum) */}
-        <Sun />
+        <Sun 
+          totalTvl={totalTvl}
+          totalTransactions={totalTransactions}
+          latestBlock={latestBlock}
+          activeProtocols={activeProtocols}
+        />
 
         {/* Protocol Planets */}
         {protocols.map((protocol) => {

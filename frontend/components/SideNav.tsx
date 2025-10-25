@@ -9,6 +9,7 @@ import {
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
+  Users,
 } from "lucide-react"
 
 const navItems = [
@@ -31,6 +32,12 @@ const navItems = [
     label: "Live Activity",
     badgeType: "pulse" as const,
     description: "Real-time transactions",
+  },
+  {
+    href: "/users",
+    icon: Users,
+    label: "User Analytics",
+    description: "Activity & adoption",
   },
 ]
 

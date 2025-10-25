@@ -1,9 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, Wallet, Settings } from "lucide-react"
+import { Menu, Settings, Globe, BarChart3, Activity, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+
+const navItems = [
+  { href: "/", icon: Globe, label: "Overview" },
+  { href: "/protocols", icon: BarChart3, label: "Protocol Stats" },
+  { href: "/feed", icon: Activity, label: "Live Activity" },
+  { href: "/users", icon: Users, label: "User Analytics" },
+]
 
 const protocols = [
   { name: "Uniswap", health: 92, color: "#ff007a" },
@@ -14,6 +23,7 @@ const protocols = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   const getHealthColor = (health: number) => {
     if (health >= 80) return "#10b981"
@@ -42,6 +52,28 @@ export function MobileNav() {
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
+          {/* Navigation */}
+          <div className="space-y-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                    isActive
+                      ? "bg-purple-500/20 text-white"
+                      : "text-white/70 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              )
+            })}
+          </div>
 
           {/* Protocol List */}
           <div className="space-y-3">

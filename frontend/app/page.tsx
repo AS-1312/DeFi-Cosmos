@@ -6,9 +6,10 @@ import { ProtocolCard } from '@/components/protocol/ProtocolCard'
 import { useProtocolStats } from '@/hooks/useProtocolStats'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2 } from "lucide-react"
+import { LoadingCosmos } from '@/components/cosmos/LoadingCosmos'
 
 const CosmosVisualization = dynamic(
-  () => import('@/components/CosmosVisualization').then(mod => mod.CosmosVisualization),
+  () => import('@/components/cosmos/CosmosVisualization').then(mod => mod.CosmosVisualization),
   {
     ssr: false,
     loading: () => <LoadingCosmos />,
@@ -60,9 +61,9 @@ export default function OverviewPage() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="h-[600px] rounded-xl overflow-hidden">
+          <div className="h-[600px] rounded-xl overflow-hidden bg-black">
             <Suspense fallback={<LoadingCosmos />}>
-              <CosmosVisualization />
+              {!loading && <CosmosVisualization protocols={protocols} />}
             </Suspense>
           </div>
         </CardContent>
@@ -82,15 +83,4 @@ export default function OverviewPage() {
       )}
     </div>
   )
-}
-
-function LoadingCosmos() {
-  return (
-    <div className="flex h-full items-center justify-center bg-gradient-to-b from-purple-900/20 to-blue-900/20">
-      <div className="text-center">
-        <div className="animate-spin text-6xl mb-4">🌌</div>
-        <p className="text-gray-400">Loading Cosmos...</p>
-      </div>
-    </div>
-  );
 }

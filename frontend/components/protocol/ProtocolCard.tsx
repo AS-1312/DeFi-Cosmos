@@ -81,7 +81,7 @@ export function ProtocolCard({ protocol }: ProtocolCardProps) {
               {getPrimaryMetricLabel(protocol.id)}
             </p>
             <p className="text-2xl font-bold text-white">
-              {tvlFormatted}
+              {tvlFormatted} ETH
             </p>
           </div>
 

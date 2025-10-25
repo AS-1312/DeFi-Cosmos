@@ -143,18 +143,30 @@ export function useProtocolStats() {
       id: 'aave-v3',
       name: 'Aave V3',
       tvl: data?.AaveProtocolStats?.[0]?.totalSuppliedETH || '0',
-      transactionCount24h: data?.AaveProtocolStats?.[0]?.supplies24h || '0',
-      tps: data?.AaveProtocolStats?.[0]?.tps ? Number(data.AaveProtocolStats[0].tps) : 0, // Convert to number
+      transactionCount24h: String(
+            (Number(data?.AaveProtocolStats[0]?.supplies24h) || 0) +
+            (Number(data?.AaveProtocolStats[0]?.withdrawals24h) || 0) +
+            (Number(data?.AaveProtocolStats[0]?.borrows24h) || 0) +
+            (Number(data?.AaveProtocolStats[0]?.repays24h) || 0)
+          ),
+      tps: ((Number(data?.AaveProtocolStats[0]?.supplies24h) || 0) +
+            (Number(data?.AaveProtocolStats[0]?.withdrawals24h) || 0) +
+            (Number(data?.AaveProtocolStats[0]?.borrows24h) || 0) +
+            (Number(data?.AaveProtocolStats[0]?.repays24h) || 0)) / 86400,
       color: '#8b5cf6',
       icon: '🏦',
-      healthScore: data?.AaveProtocolStats?.[0]?.healthScore ? Number(data.AaveProtocolStats[0].healthScore) : undefined, // Convert to number
+      healthScore: data?.AaveProtocolStats?.[0]?.healthScore ? Number(data.AaveProtocolStats[0].healthScore) : undefined,
     },
     {
       id: 'lido',
       name: 'Lido',
       tvl: data?.LidoProtocolStats?.[0]?.totalStakedETH || '0',
-      transactionCount24h: data?.LidoProtocolStats?.[0]?.submissions24h || '0',
-      tps: data?.LidoProtocolStats?.[0]?.tps ? Number(data.LidoProtocolStats[0].tps) : 0, // Convert to number
+      transactionCount24h: String(
+            (Number(data?.LidoProtocolStats[0]?.submissions24h) || 0) +
+            (Number(data?.LidoProtocolStats[0]?.transfers24h) || 0)
+          ),
+      tps: ((Number(data?.LidoProtocolStats[0]?.submissions24h) || 0) +
+            (Number(data?.LidoProtocolStats[0]?.transfers24h) || 0)) / 86400,
       color: '#f97316',
       icon: '🌊',
     },
@@ -163,8 +175,14 @@ export function useProtocolStats() {
       name: 'Curve Finance',
       tvl: data?.CurveProtocolStats?.[0]?.volumeTotalETH || '0',
       volume24h: data?.CurveProtocolStats?.[0]?.volume24hETH || '0',
-      transactionCount24h: data?.CurveProtocolStats?.[0]?.swaps24h || '0',
-      tps: data?.CurveProtocolStats?.[0]?.tps ? Number(data.CurveProtocolStats[0].tps) : 0, // Convert to number
+      transactionCount24h: String(
+            (Number(data?.CurveProtocolStats[0]?.swaps24h) || 0) +
+            (Number(data?.CurveProtocolStats[0]?.liquidityAdds24h) || 0) + 
+            (Number(data?.CurveProtocolStats[0]?.liquidityRemoves24h) || 0)
+          ),
+      tps: ((Number(data?.CurveProtocolStats[0]?.swaps24h) || 0) +
+            (Number(data?.CurveProtocolStats[0]?.liquidityAdds24h) || 0) + 
+            (Number(data?.CurveProtocolStats[0]?.liquidityRemoves24h) || 0)) / 86400,
       color: '#3b82f6',
       icon: '🔷',
     },

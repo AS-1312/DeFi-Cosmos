@@ -41,7 +41,7 @@ export default function OverviewPage() {
           DeFi Protocol Observatory
         </h1>
         <p className="text-gray-400">
-          Real-time multi-protocol analytics powered by Envio HyperSync
+          Real-time multi-protocol analytics powered by Envio HyperIndex
         </p>
         {!loading && protocols[0].tvl !== '0' && (
           <p className="text-xs text-green-400 mt-1">

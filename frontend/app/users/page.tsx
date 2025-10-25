@@ -1,6 +1,6 @@
 "use client"
 
-import { UserActivityHeatmap } from "../../components/UserActivityHeatmap"
+import { UserActivityHeatmap } from "@/components/UserActivityHeatmap"
 
 export default function UsersPage() {
   return (

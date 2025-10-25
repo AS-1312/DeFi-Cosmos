@@ -1,6 +1,6 @@
 "use client"
 
-import { LiveActivityFeed } from "../../components/LiveActivityFeed"
+import { LiveActivityFeed } from "@/components/LiveActivityFeed"
 import { useFeedAnalytics } from "@/hooks/useFeedAnalytics"
 import { AreaChart, Area, PieChart, Pie, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 

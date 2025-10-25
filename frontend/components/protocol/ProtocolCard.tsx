@@ -41,7 +41,7 @@ export function ProtocolCard({ protocol }: ProtocolCardProps) {
   const tpsFormatted = tpsValue > 0 ? tpsValue.toFixed(2) : '0.00';
 
   return (
-    <Link href={`/protocols/${protocol.id}`}>
+    <Link href={`/protocols`}>
       <Card 
         className="glass border-white/10 hover:border-white/30 transition-all cursor-pointer group relative overflow-hidden"
         style={{

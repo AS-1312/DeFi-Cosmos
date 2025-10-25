@@ -88,19 +88,15 @@ export function SideNav() {
 
       {/* Health Status Summary */}
       <div className="absolute bottom-4 left-4 right-4 p-4 rounded-lg bg-white/5 border border-white/10">
-        <div className="text-xs font-medium text-white/60 mb-2">Protocol Health</div>
+        <div className="text-xs font-medium text-white/60 mb-2">Aave V3 Health</div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 text-xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
-            <span className="text-white/80">3 Healthy</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <AlertTriangle className="w-3.5 h-3.5 text-yellow-400" />
-            <span className="text-white/80">1 Warning</span>
+            <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+            <span className="text-white/80">Live Monitoring</span>
           </div>
         </div>
         <div className="mt-3 pt-3 border-t border-white/10">
-          <div className="text-xs text-white/40">4 Protocols Monitored</div>
+          <div className="text-xs text-white/40">Real-time Health Tracking</div>
           <div className="text-xs text-white/40 mt-1">Powered by Envio</div>
         </div>
       </div>

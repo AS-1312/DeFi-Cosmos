@@ -4,18 +4,20 @@ import { useState, useEffect } from "react"
 import { Settings, Wallet, Box, Grid3x3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MobileNav } from "@/components/MobileNav"
+import { useProtocolStats } from "@/hooks/useProtocolStats"
 
 export function Header() {
-  const [blockNumber, setBlockNumber] = useState(18234567)
   const [viewMode, setViewMode] = useState<"3d" | "2d">("3d")
+  const { protocols } = useProtocolStats()
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBlockNumber((prev) => prev + 1)
-    }, 12000)
-
-    return () => clearInterval(interval)
-  }, [])
+  // Get the latest block number from all protocols
+  const latestBlock = protocols.reduce((max, protocol) => {
+    if (protocol.lastBlockNumber) {
+      const blockNum = parseInt(protocol.lastBlockNumber)
+      return blockNum > max ? blockNum : max
+    }
+    return max
+  }, 0)
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/40 border-b border-white/10 shadow-lg shadow-purple-500/10">
@@ -39,7 +41,7 @@ export function Header() {
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               <div>
                 <div className="text-xs text-white/60">Block</div>
-                <div className="text-sm font-bold text-white">{blockNumber.toLocaleString()}</div>
+                <div className="text-sm font-bold text-white">{latestBlock.toLocaleString()}</div>
               </div>
             </div>
 

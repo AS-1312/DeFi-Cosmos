@@ -115,6 +115,7 @@ interface ProtocolData {
   color: string;
   icon: string;
   healthScore?: number;
+  lastBlockNumber?: string;
 }
 
 export function useProtocolStats() {
@@ -135,7 +136,8 @@ export function useProtocolStats() {
       tvl: data?.ProtocolStats?.[0]?.volumeTotalETH || '0',
       volume24h: data?.ProtocolStats?.[0]?.volume24hETH || '0',
       transactionCount24h: data?.ProtocolStats?.[0]?.transactions24h || '0',
-      tps: data?.ProtocolStats?.[0]?.tps ? Number(data.ProtocolStats[0].tps) : 0, // Convert to number
+      tps: data?.ProtocolStats?.[0]?.tps ? Number(data.ProtocolStats[0].tps) : 0,
+      lastBlockNumber: data?.ProtocolStats?.[0]?.lastBlockNumber,
       color: '#ff007a',
       icon: '🦄',
     },
@@ -153,6 +155,7 @@ export function useProtocolStats() {
             (Number(data?.AaveProtocolStats[0]?.withdrawals24h) || 0) +
             (Number(data?.AaveProtocolStats[0]?.borrows24h) || 0) +
             (Number(data?.AaveProtocolStats[0]?.repays24h) || 0)) / 86400,
+      lastBlockNumber: data?.AaveProtocolStats?.[0]?.lastBlockNumber,
       color: '#8b5cf6',
       icon: '🏦',
       healthScore: data?.AaveProtocolStats?.[0]?.healthScore ? Number(data.AaveProtocolStats[0].healthScore) : undefined,
@@ -167,6 +170,7 @@ export function useProtocolStats() {
           ),
       tps: ((Number(data?.LidoProtocolStats[0]?.submissions24h) || 0) +
             (Number(data?.LidoProtocolStats[0]?.transfers24h) || 0)) / 86400,
+      lastBlockNumber: data?.LidoProtocolStats?.[0]?.lastBlockNumber,
       color: '#f97316',
       icon: '🌊',
     },
@@ -183,6 +187,7 @@ export function useProtocolStats() {
       tps: ((Number(data?.CurveProtocolStats[0]?.swaps24h) || 0) +
             (Number(data?.CurveProtocolStats[0]?.liquidityAdds24h) || 0) + 
             (Number(data?.CurveProtocolStats[0]?.liquidityRemoves24h) || 0)) / 86400,
+      lastBlockNumber: data?.CurveProtocolStats?.[0]?.lastBlockNumber,
       color: '#3b82f6',
       icon: '🔷',
     },

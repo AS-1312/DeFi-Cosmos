@@ -160,7 +160,7 @@ export function useProtocolStats() {
     },
     {
       id: 'curve',
-      name: 'Curve',
+      name: 'Curve Finance',
       tvl: data?.CurveProtocolStats?.[0]?.volumeTotalETH || '0',
       volume24h: data?.CurveProtocolStats?.[0]?.volume24hETH || '0',
       transactionCount24h: data?.CurveProtocolStats?.[0]?.swaps24h || '0',

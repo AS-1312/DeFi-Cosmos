@@ -424,8 +424,8 @@ export const GET_CURVE_TRANSACTIONS = `
 export const GET_PROTOCOL_HEALTH = `
   query GetProtocolHealth {
     ProtocolHealthSnapshot(
-      order_by: { timestamp: desc }
       distinct_on: protocol
+      order_by: [{protocol: asc}, {timestamp: desc}]
       limit: 10
     ) {
       id
@@ -496,52 +496,6 @@ export const GET_RECENT_TRANSACTIONS = `
       transactionHash
       logIndex
       gasPrice
-    }
-  }
-`;
-
-// ============================================
-// GLOBAL STATS
-// ============================================
-
-export const GET_GLOBAL_STATS = `
-  query GetGlobalStats {
-    GlobalStats(limit: 1) {
-      id
-      protocolCount
-      totalTransactions
-      transactions24h
-      totalUniqueUsers
-      uniqueUsers24h
-      crossProtocolFlows
-      multiProtocolWhales
-      lastUpdateTime
-    }
-  }
-`;
-
-// ============================================
-// CAPITAL FLOWS (Within Uniswap pools)
-// ============================================
-
-export const GET_CAPITAL_FLOWS = `
-  query GetCapitalFlows($limit: Int = 20) {
-    CapitalFlow(
-      limit: $limit
-      order_by: { timestamp: desc }
-    ) {
-      id
-      wallet
-      fromPoolId
-      toPoolId
-      tokenAddress
-      tokenSymbol
-      amount
-      timestamp
-      timeDelta
-      flowType
-      withdrawTxHash
-      depositTxHash
     }
   }
 `;

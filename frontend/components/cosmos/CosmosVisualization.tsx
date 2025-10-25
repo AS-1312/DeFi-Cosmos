@@ -2,14 +2,16 @@
 
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, PerspectiveCamera } from '@react-three/drei';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { ProtocolPlanet } from './ProtocolPlanet';
 import { Sun } from './Sun';
+import { ProtocolStatsModal } from './ProtocolStatsModal';
 
 interface Protocol {
   id: string;
   name: string;
   tvl: string;
+  volume24h?: string;
   transactionCount24h: string;
   tps?: number;
   color: string;
@@ -31,6 +33,9 @@ const ORBITAL_CONFIG = {
 };
 
 export function CosmosVisualization({ protocols }: CosmosVisualizationProps) {
+  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
   // Calculate aggregate metrics for Ethereum (Sun)
   const totalTvl = protocols.reduce((sum, p) => {
     const tvl = BigInt(p.tvl || '0');
@@ -50,6 +55,11 @@ export function CosmosVisualization({ protocols }: CosmosVisualizationProps) {
   }, 0);
 
   const activeProtocols = protocols.filter(p => p.tvl !== '0').length;
+
+  const handlePlanetClick = (protocol: Protocol) => {
+    setSelectedProtocol(protocol);
+    setModalOpen(true);
+  };
 
   return (
     <div className="w-full h-full">
@@ -106,6 +116,7 @@ export function CosmosVisualization({ protocols }: CosmosVisualizationProps) {
               protocol={protocol}
               orbitRadius={config.radius}
               startAngle={config.startAngle}
+              onClick={handlePlanetClick}
             />
           );
         })}
@@ -122,6 +133,13 @@ export function CosmosVisualization({ protocols }: CosmosVisualizationProps) {
           rotateSpeed={0.5}
         />
       </Canvas>
+
+      {/* Protocol Stats Modal */}
+      <ProtocolStatsModal
+        protocol={selectedProtocol}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </div>
   );
 }

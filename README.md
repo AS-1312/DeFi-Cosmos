@@ -446,6 +446,4 @@ query GetProtocolHealth {
 
 **Powered by [Envio](https://envio.dev) 🚀**
 
-[⬆ Back to Top](#defi-cosmos-)
-
 </div>

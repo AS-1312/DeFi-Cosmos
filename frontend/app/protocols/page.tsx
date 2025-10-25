@@ -4,9 +4,12 @@ import { ProtocolStatsGrid } from "@/components/ProtocolStatsGrid"
 import { ProtocolHealthPanel } from "@/components/ProtocolHealthPanel"
 import { BarChart3, TrendingUp, Activity, Zap } from "lucide-react"
 import { useState } from "react"
+import { useProtocolStats } from "@/hooks/useProtocolStats"
 
 export default function ProtocolsPage() {
   const [sortBy, setSortBy] = useState<"tvl" | "volume" | "health">("tvl")
+  const [comparisonMetric, setComparisonMetric] = useState<"tvl" | "volume" | "tps" | "health">("tvl")
+  const { protocols } = useProtocolStats()
 
   return (
     <div className="space-y-8">
@@ -55,14 +58,19 @@ export default function ProtocolsPage() {
         {/* Metric Toggle */}
         <div className="flex gap-2 mb-6">
           {[
-            { icon: BarChart3, label: "TVL" },
-            { icon: TrendingUp, label: "Volume" },
-            { icon: Zap, label: "TPS" },
-            { icon: Activity, label: "Health" },
+            { icon: BarChart3, label: "TVL", value: "tvl" as const },
+            { icon: TrendingUp, label: "Volume", value: "volume" as const },
+            { icon: Zap, label: "TPS", value: "tps" as const },
+            { icon: Activity, label: "Health", value: "health" as const },
           ].map((metric) => (
             <button
               key={metric.label}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+              onClick={() => setComparisonMetric(metric.value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
+                comparisonMetric === metric.value
+                  ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+                  : "bg-white/5 hover:bg-white/10 border-white/10 text-white/70"
+              }`}
             >
               <metric.icon className="w-4 h-4" />
               <span className="text-sm font-medium">{metric.label}</span>
@@ -72,25 +80,65 @@ export default function ProtocolsPage() {
 
         {/* Comparison Bar Chart */}
         <div className="space-y-4">
-          {[
-            { name: "Uniswap", value: 24.5, color: "bg-[#ff007a]", percentage: 100 },
-            { name: "Aave", value: 18.2, color: "bg-[#8b5cf6]", percentage: 74 },
-            { name: "Curve", value: 15.8, color: "bg-[#3b82f6]", percentage: 64 },
-            { name: "Lido", value: 22.1, color: "bg-[#f97316]", percentage: 90 },
-          ].map((protocol) => (
-            <div key={protocol.name} className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white font-medium">{protocol.name}</span>
-                <span className="text-gray-400">${protocol.value}B</span>
+          {protocols.map((protocol) => {
+            let value = 0
+            let displayValue = ""
+            let maxValue = 0
+
+            // Calculate values based on selected metric
+            if (comparisonMetric === "tvl") {
+              const tvlBigInt = BigInt(protocol.tvl || '0')
+              value = Number(tvlBigInt) / 1e18
+              maxValue = Math.max(...protocols.map(p => Number(BigInt(p.tvl || '0')) / 1e18))
+              displayValue = value > 1000 
+                ? `${(value / 1000).toFixed(1)}K ETH` 
+                : `${value.toFixed(1)} ETH`
+            } else if (comparisonMetric === "volume") {
+              if (protocol.volume24h) {
+                const volumeBigInt = BigInt(protocol.volume24h)
+                value = Number(volumeBigInt) / 1e18
+                const protocolsWithVolume = protocols.filter(p => p.volume24h)
+                maxValue = Math.max(...protocolsWithVolume.map(p => Number(BigInt(p.volume24h || '0')) / 1e18))
+                displayValue = value > 1000 
+                  ? `${(value / 1000).toFixed(1)}K ETH` 
+                  : `${value.toFixed(1)} ETH`
+              } else {
+                displayValue = "N/A"
+              }
+            } else if (comparisonMetric === "tps") {
+              value = protocol.tps || 0
+              maxValue = Math.max(...protocols.map(p => p.tps || 0))
+              displayValue = value.toFixed(2)
+            } else if (comparisonMetric === "health") {
+              value = protocol.healthScore || 0
+              maxValue = 100
+              displayValue = value > 0 ? `${value}/100` : "N/A"
+            }
+
+            const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0
+
+            return (
+              <div key={protocol.id} className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{protocol.icon}</span>
+                    <span className="text-white font-medium">{protocol.name}</span>
+                  </div>
+                  <span className="text-gray-400">{displayValue}</span>
+                </div>
+                <div className="h-8 bg-white/5 rounded-lg overflow-hidden relative">
+                  <div
+                    className={`h-full transition-all duration-500`}
+                    style={{ 
+                      width: `${percentage}%`,
+                      backgroundColor: protocol.color,
+                      boxShadow: `0 0 10px ${protocol.color}40`
+                    }}
+                  />
+                </div>
               </div>
-              <div className="h-8 bg-white/5 rounded-lg overflow-hidden">
-                <div
-                  className={`h-full ${protocol.color} transition-all duration-500`}
-                  style={{ width: `${protocol.percentage}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>

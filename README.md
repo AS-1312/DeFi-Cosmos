@@ -381,12 +381,19 @@ query GetRecentTransactions($limit: Int = 20) {
 # Get protocol health
 query GetProtocolHealth {
   ProtocolHealthSnapshot(
-    order_by: { timestamp: desc }
     distinct_on: protocol
+    order_by: [{protocol: asc}, {timestamp: desc}]
+    limit: 10
   ) {
+    id
     protocol
+    timestamp
     healthScore
     utilizationRate
+    tvlChangePercent24h
+    whaleExits1h
+    gasSpike
+    liquidationCount1h
     warnings
   }
 }

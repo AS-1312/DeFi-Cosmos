@@ -25,9 +25,6 @@ A next-generation Web3 analytics dashboard that visualizes DeFi protocols as an 
 - 📏 **Planet Size** = Total Value Locked (TVL)
 - 🎨 **Planet Color** = Protocol health (🟢 Green → 🟡 Yellow → 🔴 Red)
 - ⚡ **Orbital Speed** = Transaction velocity (TPS)
-- 🌊 **Particle Streams** = Real-time capital flows between protocols
-- ☄️ **Comets** = Whale wallet movements
-- 🔗 **Connection Lines** = Cross-protocol relationships
 
 ### What Makes DeFi Cosmos Different?
 
@@ -237,7 +234,7 @@ pnpm install
 3. **Configure environment variables:**
 ```bash
 # Create .env.local
-cp .env.example .env.local
+cp env.example .env.local
 
 # Edit .env.local:
 NEXT_PUBLIC_GRAPHQL_HTTP=http://localhost:8080/v1/graphql
@@ -428,7 +425,7 @@ query GetProtocolHealth {
 ## 🔮 Future Roadmap
 
 ### Phase 2
-- [ ] Additional protocol integrations (Compound, Curve V2, MakerDAO)
+- [ ] Additional protocol integrations (EigenLayer, Ethena, Compound, MakerDAO, Uniswap V3)
 - [ ] Time Machine playback feature
 - [ ] Cross-protocol capital flow visualization
 - [ ] Wallet-connected personal portfolio

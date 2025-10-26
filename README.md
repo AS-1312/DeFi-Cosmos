@@ -274,11 +274,6 @@ pnpm start
 
 ## ⚡ Performance & Optimization
 
-### Event Processing
-- **Target:** <100K events/month
-- **Achieved:** ~51K events/month
-- **Efficiency:** 49% headroom for growth
-
 ### Frontend Performance
 - **3D Rendering:** 60 FPS (optimized with instanced meshes)
 - **Initial Load:** <3 seconds

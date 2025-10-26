@@ -8,8 +8,13 @@ A next-generation Web3 analytics dashboard that visualizes DeFi protocols as an 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org)
 [![Three.js](https://img.shields.io/badge/Three.js-r159-blue)](https://threejs.org)
 
-
 ---
+
+<br/>
+
+<p align="center">
+  <img src="cover-image.png" alt="Cover Image" style="width: 50%;" />
+</p>
 
 ## 🌟 Overview
 
